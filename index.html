@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>CHRONICLES</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --blood:#8b1a1a; --rust:#6b3a2a; --bronze:#a07840; --parchment:#c8b89a;
+  --ash:#7a7068; --obsidian:#0d0b09; --iron:#2a2520; --gold:#d4a843;
+  --st: env(safe-area-inset-top,44px);
+  --sb: env(safe-area-inset-bottom,34px);
+  --sl: env(safe-area-inset-left,0px);
+  --sr: env(safe-area-inset-right,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none;}
+html,body{
+  background:#000;font-family:'Crimson Text',serif;color:var(--parchment);
+  overflow:hidden;user-select:none;-webkit-user-select:none;
+  touch-action:none;width:100%;height:100%;position:fixed;
+}
+canvas#cv{position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;filter:contrast(1.1)saturate(0.58)brightness(0.88);}
+#vign{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 28%,rgba(0,0,0,0.9)100%);pointer-events:none;z-index:50;}
+#grain{position:fixed;top:-50%;left:-50%;width:200%;height:200%;pointer-events:none;z-index:51;opacity:0.028;
+  background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4t5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dohRRd8PNuBs0ZBWF/YSnGK29X8hMqyRAAHPkwuaezaP8RgbME5EA/o9AXfSlXC5Xi8sMExYA9/Xd+aX/bT7AAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfnAh0BFjPZ6iplAAAAHmtYSWYAAE1MAAgAAAAEABBRAQABAAAAAQAA");
+  animation:grain .4s steps(1) infinite;}
+@keyframes grain{0%,100%{transform:translate(0,0)}25%{transform:translate(-2%,-3%)}50%{transform:translate(1%,2%)}75%{transform:translate(3%,-1%)}}
+
+/* ── UI LAYER ── */
+#ui{position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;pointer-events:none;}
+#ui>*{pointer-events:auto;}
+
+/* ── LOADING ── */
+#loading{position:absolute;inset:0;background:var(–obsidian);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:24px;}
+#loading h2{font-family:‘Cinzel Decorative’,serif;font-size:clamp(1.4rem,7vw,2.2rem);color:var(–gold);letter-spacing:.3em;margin-bottom:28px;text-align:center;}
+.lbar{width:min(280px,75vw);height:3px;background:var(–iron);border-radius:2px;overflow:hidden;}
+.lbar div{height:100%;background:var(–gold);animation:ld 2.1s ease forwards;}
+@keyframes ld{from{width:0}to{width:100%}}
+#loading p{color:var(–ash);font-size:.85rem;margin-top:18px;font-style:italic;animation:pulse 2s infinite;text-align:center;}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── MAIN MENU ── */
+#menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(13,11,9,.88) 55%,rgba(0,0,0,.97) 100%);
+padding:calc(var(–st) + 16px) 20px calc(var(–sb) + 80px);}
+.logo{text-align:center;margin-bottom:clamp(24px,6vh,52px);animation:fdDown 1.4s ease;}
+.logo .sub{font-family:‘Cinzel’,serif;font-size:clamp(.55rem,2.2vw,.8rem);letter-spacing:.5em;color:var(–ash);text-transform:uppercase;margin-bottom:10px;}
+.logo h1{font-family:‘Cinzel Decorative’,serif;font-size:clamp(2rem,10vw,5rem);font-weight:900;color:var(–gold);text-shadow:0 0 60px rgba(212,168,67,.5);line-height:1.05;}
+.logo .tag{font-style:italic;font-size:clamp(.82rem,3.2vw,1.05rem);color:var(–parchment);margin-top:8px;letter-spacing:.15em;}
+.divdr{width:min(260px,65vw);height:1px;margin:0 auto 6px;background:linear-gradient(90deg,transparent,var(–bronze),transparent);}
+.mopts{display:flex;flex-direction:column;gap:4px;width:min(340px,88vw);}
+.mbtn{background:transparent;border:none;font-family:‘Cinzel’,serif;font-size:clamp(.82rem,3.8vw,1rem);font-weight:600;
+color:var(–parchment);letter-spacing:.15em;text-transform:uppercase;padding:16px 22px;position:relative;overflow:hidden;
+transition:color .25s;border-left:2px solid transparent;min-height:52px;width:100%;text-align:left;touch-action:manipulation;}
+.mbtn::before{content:’’;position:absolute;inset:0;background:linear-gradient(90deg,rgba(212,168,67,.14),transparent);transform:translateX(-100%);transition:transform .28s;}
+.mbtn:active{color:var(–gold);border-left-color:var(–gold);}
+.mbtn:active::before{transform:translateX(0);}
+.mquote{position:absolute;bottom:calc(var(–sb) + 14px);left:50%;transform:translateX(-50%);text-align:center;width:min(560px,88vw);}
+.mquote p{font-style:italic;font-size:clamp(.72rem,2.4vw,.92rem);color:var(–ash);line-height:1.5;}
+.mquote cite{font-size:.68rem;color:var(–rust);margin-top:5px;display:block;}
+
+/* ── ERA SELECT ── */
+#era-scr{position:absolute;inset:0;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(13,11,9,.95));}
+.era-inner{padding:calc(var(–st) + 52px) 14px calc(var(–sb) + 20px);}
+.scr-hdr{text-align:center;margin-bottom:20px;}
+.scr-hdr h2{font-family:‘Cinzel’,serif;font-size:clamp(1rem,5vw,1.6rem);color:var(–gold);letter-spacing:.22em;text-transform:uppercase;}
+.scr-hdr p{color:var(–ash);font-style:italic;margin-top:6px;font-size:clamp(.72rem,2.4vw,.88rem);}
+.era-grid{display:grid;grid-template-columns:1fr;gap:10px;max-width:560px;margin:0 auto;}
+@media(min-width:560px){.era-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* Era card — tap to launch character sheet */
+.ecard{background:linear-gradient(135deg,rgba(26,22,18,.96),rgba(13,11,9,.99));
+border:1px solid rgba(160,120,64,.32);padding:16px 14px 14px;position:relative;overflow:hidden;
+border-radius:3px;touch-action:manipulation;transition:border-color .2s,background .15s;}
+.ecard:active{background:linear-gradient(135deg,rgba(44,34,20,.98),rgba(22,17,10,1));border-color:var(–gold);}
+.ecard-top{height:3px;position:absolute;top:0;left:0;right:0;background:linear-gradient(90deg,transparent,var(–bronze),transparent);}
+.ecard-icon{font-size:1.5rem;opacity:.35;position:absolute;top:12px;right:12px;}
+.ecard-year{font-family:‘Cinzel’,serif;font-size:.66rem;letter-spacing:.25em;color:var(–bronze);text-transform:uppercase;margin-bottom:5px;}
+.ecard-name{font-family:‘Cinzel’,serif;font-size:clamp(.92rem,3.2vw,1.1rem);font-weight:700;color:var(–parchment);margin-bottom:7px;}
+.ecard-desc{font-size:clamp(.74rem,2.1vw,.84rem);color:var(–ash);line-height:1.42;}
+.ecard-tap{font-size:.62rem;color:var(–bronze);margin-top:8px;letter-spacing:.2em;text-transform:uppercase;font-family:‘Cinzel’,serif;}
+
+/* ── CHARACTER BOTTOM SHEET ── */
+#char-sheet{position:absolute;inset:0;display:none;background:rgba(0,0,0,.78);align-items:flex-end;justify-content:center;z-index:300;}
+#char-sheet.show{display:flex;}
+#char-panel{background:linear-gradient(180deg,rgba(18,14,10,.98),rgba(8,6,4,1));
+border-top:1px solid rgba(160,120,64,.5);border-left:1px solid rgba(160,120,64,.2);border-right:1px solid rgba(160,120,64,.2);
+width:100%;max-width:600px;padding:0 16px calc(var(–sb)+16px);
+border-radius:10px 10px 0 0;animation:slidePanel .35s ease;}
+@keyframes slidePanel{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#char-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;}
+#char-panel-title{font-family:‘Cinzel’,serif;color:var(–gold);font-size:clamp(.9rem,3.8vw,1.1rem);letter-spacing:.22em;}
+#char-panel-close{width:36px;height:36px;background:rgba(255,255,255,.06);border:1px solid rgba(160,120,64,.3);
+border-radius:50%;font-size:1rem;color:var(–ash);touch-action:manipulation;}
+.char-row{display:flex;gap:10px;margin-bottom:12px;}
+.ccard{flex:1;background:linear-gradient(135deg,rgba(26,22,18,.97),rgba(13,11,9,1));
+border:1px solid rgba(160,120,64,.28);padding:14px;border-radius:3px;touch-action:manipulation;transition:border-color .18s,background .15s;}
+.ccard:active{border-color:var(–gold);background:rgba(44,34,20,.98);}
+.cc-name{font-family:‘Cinzel’,serif;font-size:clamp(.88rem,3.5vw,1.05rem);font-weight:700;color:var(–gold);margin-bottom:3px;}
+.cc-role{font-size:.68rem;color:var(–bronze);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;}
+.cc-bio{font-size:clamp(.72rem,2.1vw,.8rem);color:var(–ash);line-height:1.42;}
+.cc-stats{display:flex;gap:12px;margin-top:10px;}
+.cstat{text-align:center;}
+.cstat-l{font-size:.6rem;color:var(–ash);text-transform:uppercase;letter-spacing:.08em;}
+.cstat-b{width:50px;height:4px;background:var(–iron);margin-top:3px;border-radius:2px;overflow:hidden;}
+.cstat-f{height:100%;background:var(–bronze);border-radius:2px;}
+.cc-go{display:block;width:100%;margin-top:12px;padding:13px;
+background:linear-gradient(135deg,rgba(160,120,64,.2),rgba(212,168,67,.08));
+border:1px solid var(–bronze);font-family:‘Cinzel’,serif;font-size:clamp(.72rem,2.4vw,.82rem);
+letter-spacing:.18em;color:var(–parchment);text-transform:uppercase;touch-action:manipulation;min-height:46px;transition:background .2s,color .2s;}
+.cc-go:active{background:rgba(212,168,67,.3);color:var(–gold);}
+
+/* ── HUD ── */
+#hud{position:absolute;inset:0;display:none;pointer-events:none;}
+
+/* TOP BAR — health | wave+obj | kills — nothing overlaps */
+#hud-top{
+position:absolute;
+top:calc(var(–st) + 6px);
+left:calc(var(–sl) + 12px);
+right:calc(var(–sr) + 12px);
+display:flex;align-items:flex-start;justify-content:space-between;
+gap:8px;pointer-events:none;
+}
+/* Health block */
+#hp-block{flex:0 0 auto;}
+.hlabel{font-family:‘Cinzel’,serif;font-size:.55rem;letter-spacing:.25em;color:var(–ash);margin-bottom:3px;text-transform:uppercase;}
+.hbar-out{width:min(130px,33vw);height:6px;background:rgba(0,0,0,.7);border:1px solid rgba(139,26,26,.4);border-radius:3px;overflow:hidden;}
+#hp-fill{height:100%;width:100%;background:linear-gradient(90deg,#6b1010,#cc2222);transition:width .3s;border-radius:3px;}
+#hp-num{font-family:‘Cinzel’,serif;font-size:.92rem;color:var(–blood);margin-top:2px;}
+
+/* Center block — wave + objective */
+#wave-block{flex:1;text-align:center;}
+#wave-txt{font-family:‘Cinzel’,serif;font-size:clamp(.7rem,3.2vw,.88rem);letter-spacing:.28em;color:var(–gold);}
+#obj-txt{font-size:clamp(.6rem,2.2vw,.7rem);color:var(–ash);margin-top:2px;font-style:italic;line-height:1.3;}
+#obj-prog{display:inline-block;margin-top:3px;font-family:‘Cinzel’,serif;font-size:.68rem;color:var(–bronze);letter-spacing:.1em;}
+
+/* Kills block */
+#kill-block{flex:0 0 auto;text-align:right;}
+#kill-n{font-family:‘Cinzel’,serif;font-size:1.5rem;font-weight:700;color:var(–blood);line-height:1;}
+#kill-l{font-size:.55rem;letter-spacing:.2em;color:var(–ash);text-transform:uppercase;}
+
+/* STAMINA — just below top bar, left side */
+#stam-wrap{position:absolute;top:calc(var(–st) + 54px);left:calc(var(–sl) + 12px);pointer-events:none;}
+.slabel{font-family:‘Cinzel’,serif;font-size:.5rem;letter-spacing:.22em;color:var(–ash);text-transform:uppercase;}
+.sbar-out{width:min(100px,26vw);height:3px;background:rgba(0,0,0,.6);border:1px solid rgba(60,90,200,.3);border-radius:2px;margin-top:3px;overflow:hidden;}
+#stam-fill{height:100%;width:100%;background:linear-gradient(90deg,#1a3a8b,#3366cc);transition:width .3s;border-radius:2px;}
+
+/* MINIMAP — top RIGHT corner, above kill count area */
+#minimap{
+position:absolute;
+top:calc(var(–st) + 54px);
+right:calc(var(–sr) + 12px);
+width:76px;height:76px;
+border:1px solid rgba(160,120,64,.35);background:rgba(0,0,0,.65);border-radius:2px;overflow:hidden;pointer-events:none;
+}
+#mmc{width:100%;height:100%;display:block;}
+
+/* ERA INFO strip — thin, center, sits below minimap row */
+#era-strip{
+position:absolute;top:calc(var(–st) + 54px);left:50%;transform:translateX(-50%);
+background:rgba(0,0,0,.55);border:1px solid rgba(160,120,64,.25);
+padding:3px 12px;pointer-events:none;white-space:nowrap;
+}
+#era-strip-txt{font-family:‘Cinzel’,serif;font-size:.56rem;letter-spacing:.22em;color:var(–bronze);text-transform:uppercase;}
+
+/* DAMAGE FLASH */
+#dmgflash{position:absolute;inset:0;background:rgba(139,26,26,.32);opacity:0;transition:opacity .1s;pointer-events:none;}
+#dmgflash.hit{opacity:1;}
+
+/* CROSSHAIR */
+#xhair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;display:none;}
+#xhair::before,#xhair::after{content:’’;position:absolute;background:rgba(255,255,255,.6);}
+#xhair::before{width:16px;height:1.5px;top:-.75px;left:-8px;}
+#xhair::after{width:1.5px;height:16px;top:-8px;left:-.75px;}
+
+/* QUOTE — top center below era strip, brief display, has backdrop */
+#quote-pop{
+position:absolute;top:calc(var(–st) + 140px);left:50%;transform:translateX(-50%);
+width:min(340px,80vw);text-align:center;pointer-events:none;
+background:rgba(0,0,0,.72);border:1px solid rgba(160,120,64,.25);padding:10px 14px;
+opacity:0;transition:opacity .8s;
+}
+#quote-pop.show{opacity:1;}
+#quote-pop p{font-style:italic;font-size:clamp(.72rem,2.4vw,.82rem);color:var(–parchment);line-height:1.45;}
+#quote-pop cite{font-size:.62rem;color:var(–bronze);display:block;margin-top:5px;}
+
+/* KILL NOTIF */
+#kill-notif{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .15s;}
+#kill-notif.show{opacity:1;}
+#kill-txt{font-family:‘Cinzel’,serif;font-size:clamp(1rem,4.5vw,1.35rem);font-weight:700;color:var(–blood);text-shadow:0 0 18px rgba(139,26,26,.9);letter-spacing:.22em;}
+
+/* WAVE INTRO overlay */
+#wave-intro{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;background:rgba(0,0,0,.48);}
+#wi-txt{font-family:‘Cinzel Decorative’,serif;font-size:clamp(1.8rem,8vw,3rem);color:var(–gold);text-shadow:0 0 50px rgba(212,168,67,.55);text-align:center;}
+#wi-sub{font-family:‘Cinzel’,serif;font-size:clamp(.7rem,2.8vw,.95rem);color:var(–parchment);letter-spacing:.3em;margin-top:8px;text-align:center;}
+#wi-obj{font-style:italic;color:var(–ash);font-size:clamp(.65rem,2.3vw,.78rem);margin-top:12px;text-align:center;max-width:240px;}
+@keyframes wiFade{0%{opacity:0;transform:scale(.82)}25%{opacity:1;transform:scale(1)}72%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+
+/* PAUSE BUTTON inside HUD */
+#pause-btn{
+position:absolute;top:calc(var(–st) + 6px);right:calc(var(–sr) + 12px);
+width:36px;height:36px;background:rgba(0,0,0,.58);border:1px solid rgba(160,120,64,.35);
+border-radius:6px;color:var(–ash);font-size:.9rem;font-family:sans-serif;
+display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:manipulation;
+}
+/* But kill block is right:12px… we need pause btn further right or integrated */
+/* Actually: kill block doesn’t need pause btn on top of it. Pause sits top-right, and kill-block is below it. */
+/* Let’s re-position: kill-block goes away from top-right, and pause sits in kill-block’s space */
+
+/* ── TOUCH CONTROLS ── */
+#tc{position:absolute;inset:0;pointer-events:none;display:none;}
+#tc.active{display:block;}
+
+/* JOYSTICK — bottom left, clear of minimap and hud */
+#jzone{
+position:absolute;
+bottom:calc(var(–sb) + 20px);
+left:calc(var(–sl) + 14px);
+width:148px;height:148px;pointer-events:auto;touch-action:none;
+}
+#jbase{
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+width:132px;height:132px;border-radius:50%;
+background:radial-gradient(circle,rgba(160,120,64,.1) 0%,rgba(0,0,0,.48) 100%);
+border:2px solid rgba(160,120,64,.4);
+}
+#jknob{
+position:absolute;top:50%;left:50%;width:52px;height:52px;
+transform:translate(-50%,-50%);border-radius:50%;
+background:radial-gradient(circle at 38% 32%,rgba(212,168,67,.72),rgba(160,100,30,.92));
+border:2px solid rgba(212,168,67,.55);
+box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 10px rgba(212,168,67,.22);
+pointer-events:none;
+}
+.da{position:absolute;font-size:.85rem;opacity:.28;color:var(–parchment);pointer-events:none;user-select:none;}
+#da-u{top:3px;left:50%;transform:translateX(-50%);}
+#da-d{bottom:3px;left:50%;transform:translateX(-50%);}
+#da-l{left:3px;top:50%;transform:translateY(-50%);}
+#da-r{right:3px;top:50%;transform:translateY(-50%);}
+
+/* CAMERA ZONE — right 52% of screen, full height minus action btn area */
+#camzone{
+position:absolute;right:0;top:0;
+width:52%;height:calc(100% - 188px);
+pointer-events:auto;touch-action:none;
+}
+
+/* ACTION BUTTONS — bottom right cluster */
+#abts{position:absolute;bottom:calc(var(–sb) + 20px);right:calc(var(–sr) + 16px);pointer-events:auto;touch-action:none;width:160px;height:160px;}
+.abtn{
+position:absolute;border-radius:50%;font-family:‘Cinzel’,serif;font-weight:700;text-transform:uppercase;
+display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+touch-action:none;pointer-events:auto;border:2px solid;transition:transform .07s;
+user-select:none;-webkit-user-select:none;
+}
+.abtn:active,.abtn.pr{transform:scale(.88);}
+
+/* ATTACK — big, bottom right */
+#abt-atk{width:80px;height:80px;bottom:0;right:0;
+background:radial-gradient(circle at 38% 32%,rgba(180,20,20,.88),rgba(90,8,8,.96));
+border-color:rgba(200,40,40,.65);box-shadow:0 3px 18px rgba(120,8,8,.7),0 0 24px rgba(139,26,26,.3);}
+#abt-atk .sym{font-size:1.5rem;line-height:1;color:#ff6666;}
+#abt-atk .lbl{font-size:.46rem;color:#ffaaaa;letter-spacing:.12em;}
+
+/* DODGE — top right */
+#abt-dg{width:58px;height:58px;top:0;right:10px;
+background:radial-gradient(circle at 38% 32%,rgba(36,56,160,.82),rgba(18,28,100,.96));
+border-color:rgba(56,86,200,.48);box-shadow:0 2px 12px rgba(18,28,100,.6);}
+#abt-dg .sym{font-size:1rem;line-height:1;color:#7788ee;}
+#abt-dg .lbl{font-size:.44rem;color:#8899ff;letter-spacing:.1em;}
+
+/* SPRINT — bottom left of action cluster */
+#abt-sp{width:52px;height:52px;bottom:8px;left:0;
+background:radial-gradient(circle at 38% 32%,rgba(36,100,36,.82),rgba(18,56,18,.96));
+border-color:rgba(56,160,56,.48);box-shadow:0 2px 12px rgba(18,70,18,.5);}
+#abt-sp .sym{font-size:.92rem;line-height:1;color:#66cc66;}
+#abt-sp .lbl{font-size:.44rem;color:#88ee88;letter-spacing:.1em;}
+
+/* ── GAME OVER / VICTORY ── */
+#go-scr,#vc-scr{
+position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+padding:calc(var(–st)+30px) 20px calc(var(–sb)+20px);text-align:center;overflow-y:auto;
+}
+#go-scr{background:rgba(0,0,0,.94);}
+#vc-scr{background:rgba(0,0,0,.91);}
+.end-h{font-family:‘Cinzel Decorative’,serif;font-size:clamp(1.6rem,7vw,2.8rem);letter-spacing:.08em;margin-bottom:14px;}
+#go-scr .end-h{color:var(–blood);text-shadow:0 0 50px rgba(139,26,26,.6);}
+#vc-scr .end-h{color:var(–gold);text-shadow:0 0 50px rgba(212,168,67,.5);}
+.end-q{font-style:italic;font-size:clamp(.82rem,2.8vw,1rem);color:var(–ash);max-width:440px;line-height:1.55;}
+.end-c{font-size:.72rem;color:var(–rust);margin-top:6px;display:block;}
+.end-score{font-family:‘Cinzel’,serif;font-size:clamp(1.1rem,4.5vw,1.8rem);color:var(–gold);margin:20px 0;}
+.ebtn{background:transparent;border:1px solid var(–bronze);padding:15px 26px;
+font-family:‘Cinzel’,serif;font-size:clamp(.74rem,2.8vw,.88rem);letter-spacing:.22em;
+color:var(–parchment);margin:5px;min-height:50px;touch-action:manipulation;transition:background .2s,color .2s;}
+.ebtn:active{background:rgba(160,120,64,.28);color:var(–gold);}
+
+/* ── PAUSE MENU ── */
+#pause-scr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+background:rgba(0,0,0,.84);backdrop-filter:blur(5px);pointer-events:auto;
+padding:calc(var(–st)+20px) 24px calc(var(–sb)+20px);}
+#pause-scr h2{font-family:‘Cinzel’,serif;font-size:clamp(1.3rem,5vw,1.9rem);color:var(–gold);letter-spacing:.4em;margin-bottom:26px;}
+
+/* ── CODEX & CONTROLS ── */
+#codex-scr,#ctrl-scr{
+position:absolute;inset:0;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+background:rgba(0,0,0,.95);
+padding:calc(var(–st)+52px) calc(var(–sr)+14px) calc(var(–sb)+20px) calc(var(–sl)+14px);
+}
+.sh2{font-family:‘Cinzel’,serif;font-size:clamp(1rem,4.8vw,1.8rem);color:var(–gold);text-align:center;margin-bottom:20px;letter-spacing:.22em;}
+.cxcnt{max-width:760px;margin:0 auto;}
+.ctgrid{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;max-width:380px;margin:0 auto;}
+.ctk{text-align:right;color:var(–bronze);font-family:‘Cinzel’,serif;font-size:clamp(.74rem,2.4vw,.86rem);padding:5px 0;}
+.ctv{color:var(–ash);font-size:clamp(.74rem,2.4vw,.86rem);padding:5px 0;}
+.ctnote{background:rgba(160,120,64,.09);border:1px solid rgba(160,120,64,.28);padding:12px 16px;margin-top:18px;border-radius:2px;max-width:380px;text-align:center;}
+.ctnote p{font-size:.8rem;color:var(–ash);line-height:1.5;}
+
+/* ── BACK BTN ── */
+.bbtn{position:absolute;top:calc(var(–st)+12px);left:calc(var(–sl)+12px);background:transparent;border:none;
+font-family:‘Cinzel’,serif;font-size:.75rem;letter-spacing:.2em;color:var(–ash);text-transform:uppercase;
+transition:color .22s;padding:10px 8px;min-height:44px;touch-action:manipulation;z-index:10;}
+.bbtn:active{color:var(–gold);}
+.bbtn::before{content:’← ’;}
+
+/* ── DAMAGE NUMBERS ── */
+.dmgn{position:absolute;font-family:‘Cinzel’,serif;font-weight:700;color:var(–blood);pointer-events:none;
+text-shadow:0 0 8px rgba(139,26,26,.7);animation:floUp .75s ease forwards;z-index:200;}
+@keyframes floUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-44px)}}
+
+/* ── MISC ANIMS ── */
+@keyframes fdIn{from{opacity:0}to{opacity:1}}
+@keyframes fdDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ani{animation:slUp .45s ease both;}
+
+/* ── OBJECTIVE COMPLETE BANNER ── */
+#obj-banner{
+position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+background:linear-gradient(135deg,rgba(22,40,22,.95),rgba(10,20,10,.98));
+border:1px solid rgba(80,160,80,.5);padding:12px 24px;text-align:center;
+pointer-events:none;opacity:0;transition:opacity .4s;min-width:240px;
+}
+#obj-banner.show{opacity:1;}
+#obj-banner p{font-family:‘Cinzel’,serif;font-size:clamp(.8rem,3vw,.95rem);color:#88ee88;letter-spacing:.2em;}
+#obj-banner span{font-size:.68rem;color:var(–ash);display:block;margin-top:3px;}
+</style>
+
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<div id="vign"></div>
+<div id="grain"></div>
+
+<div id="ui">
+
+<!-- LOADING -->
+
+<div id="loading">
+  <h2>CHRONICLES</h2>
+  <div class="lbar"><div></div></div>
+  <p>Forging the annals of history…</p>
+</div>
+
+<!-- MAIN MENU -->
+
+<div id="menu" style="display:none">
+  <div class="logo">
+    <div class="sub">World History RPG</div>
+    <div class="divdr"></div>
+    <h1>CHRONICLES</h1>
+    <div class="tag">The Weight of History</div>
+  </div>
+  <nav class="mopts">
+    <button class="mbtn" id="b-play">⚔&nbsp;&nbsp;Enter the Battlefield</button>
+    <button class="mbtn" id="b-codex">📜&nbsp;&nbsp;Historical Codex</button>
+    <button class="mbtn" id="b-ctrl">⚙&nbsp;&nbsp;Controls</button>
+  </nav>
+  <div class="mquote">
+    <p>"Those who cannot remember the past are condemned to repeat it."</p>
+    <cite>— George Santayana, The Life of Reason, Vol. 1 (1905)</cite>
+  </div>
+</div>
+
+<!-- ERA SELECT -->
+
+<div id="era-scr">
+  <button class="bbtn" id="b-era-back">Back</button>
+  <div class="era-inner">
+    <div class="scr-hdr">
+      <h2>Choose Your Era</h2>
+      <p>Tap an era to enter battle — drawn from European literature, scholarly texts & UN archives</p>
+    </div>
+    <div class="era-grid" id="era-grid"></div>
+  </div>
+</div>
+
+<!-- CHARACTER BOTTOM SHEET -->
+
+<div id="char-sheet">
+  <div id="char-panel">
+    <div id="char-panel-head">
+      <div id="char-panel-title">Choose Your Commander</div>
+      <button id="char-panel-close">✕</button>
+    </div>
+    <div class="char-row" id="char-row"></div>
+  </div>
+</div>
+
+<!-- HUD -->
+
+<div id="hud">
+  <div id="dmgflash"></div>
+  <div id="xhair"></div>
+
+  <!-- Top bar -->
+
+  <div id="hud-top">
+    <div id="hp-block">
+      <div class="hlabel">Vitality</div>
+      <div class="hbar-out"><div id="hp-fill"></div></div>
+      <div id="hp-num">100</div>
+    </div>
+    <div id="wave-block">
+      <div id="wave-txt">WAVE I</div>
+      <div id="obj-txt">Defeat all enemies</div>
+      <div id="obj-prog">0 / 5</div>
+    </div>
+    <div id="kill-block">
+      <div id="kill-n">0</div>
+      <div id="kill-l">Slain</div>
+    </div>
+  </div>
+
+  <div id="stam-wrap">
+    <div class="slabel">Stamina</div>
+    <div class="sbar-out"><div id="stam-fill"></div></div>
+  </div>
+  <div id="minimap"><canvas id="mmc" width="76" height="76"></canvas></div>
+  <div id="era-strip"><div id="era-strip-txt"></div></div>
+
+  <div id="quote-pop"><p id="qp-txt"></p><cite id="qp-src"></cite></div>
+  <div id="kill-notif"><div id="kill-txt">FALLEN</div></div>
+  <div id="obj-banner"><p id="ob-txt">OBJECTIVE COMPLETE</p><span id="ob-sub"></span></div>
+
+<button id="pause-btn">⏸</button>
+
+</div>
+
+<!-- TOUCH CONTROLS -->
+
+<div id="tc">
+  <div id="jzone">
+    <div id="jbase">
+      <span class="da" id="da-u">▲</span>
+      <span class="da" id="da-d">▼</span>
+      <span class="da" id="da-l">◀</span>
+      <span class="da" id="da-r">▶</span>
+      <div id="jknob"></div>
+    </div>
+  </div>
+  <div id="camzone"></div>
+  <div id="abts">
+    <button class="abtn" id="abt-atk"><span class="sym">⚔</span><span class="lbl">ATTACK</span></button>
+    <button class="abtn" id="abt-dg"><span class="sym">💨</span><span class="lbl">DODGE</span></button>
+    <button class="abtn" id="abt-sp"><span class="sym">⚡</span><span class="lbl">SPRINT</span></button>
+  </div>
+</div>
+
+<!-- WAVE INTRO -->
+
+<div id="wave-intro">
+  <div id="wi-txt">WAVE I</div>
+  <div id="wi-sub">The battle begins</div>
+  <div id="wi-obj"></div>
+</div>
+
+<!-- PAUSE -->
+
+<div id="pause-scr">
+  <h2>PAUSED</h2>
+  <button class="mbtn" id="b-resume">▶&nbsp;&nbsp;Resume</button>
+  <button class="mbtn" id="b-quit">↩&nbsp;&nbsp;Abandon Field</button>
+</div>
+
+<!-- GAME OVER -->
+
+<div id="go-scr">
+  <div class="end-h">YOU HAVE FALLEN</div>
+  <p class="end-q" id="go-q"></p><cite class="end-c" id="go-c"></cite>
+  <div class="end-score" id="go-sc">0 Enemies Slain</div>
+  <div>
+    <button class="ebtn" id="b-retry">⚔ Fight Again</button>
+    <button class="ebtn" id="b-menu-go">Menu</button>
+  </div>
+</div>
+
+<!-- VICTORY -->
+
+<div id="vc-scr">
+  <div class="end-h">⚔ VICTORY ⚔</div>
+  <p class="end-q" id="vc-q"></p><cite class="end-c" id="vc-c"></cite>
+  <div class="end-score" id="vc-sc"></div>
+  <div>
+    <button class="ebtn" id="b-next">Next Era →</button>
+    <button class="ebtn" id="b-menu-vc">Menu</button>
+  </div>
+</div>
+
+<!-- CODEX -->
+
+<div id="codex-scr">
+  <button class="bbtn" id="b-codex-back">Back</button>
+  <div class="sh2">HISTORICAL CODEX</div>
+  <div class="cxcnt" id="cxcnt"></div>
+</div>
+
+<!-- CONTROLS -->
+
+<div id="ctrl-scr">
+  <button class="bbtn" id="b-ctrl-back">Back</button>
+  <div class="sh2">CONTROLS</div>
+  <div class="ctgrid">
+    <div class="ctk">Left Joystick</div><div class="ctv">Move character</div>
+    <div class="ctk">Right Swipe</div><div class="ctv">Rotate camera</div>
+    <div class="ctk">⚔ ATTACK</div><div class="ctv">Strike nearby enemies</div>
+    <div class="ctk">💨 DODGE</div><div class="ctv">Roll out of danger (costs stamina)</div>
+    <div class="ctk">⚡ SPRINT</div><div class="ctv">Hold to run faster</div>
+    <div class="ctk">⏸</div><div class="ctv">Pause the game</div>
+    <div class="ctk">WASD / Arrow keys</div><div class="ctv">Move (keyboard)</div>
+    <div class="ctk">Mouse drag</div><div class="ctv">Camera (desktop)</div>
+    <div class="ctk">Left click</div><div class="ctv">Attack (desktop)</div>
+  </div>
+  <div class="ctnote" style="margin:20px auto 0">
+    <p>📱 On iPhone — tap any era to choose your commander and enter battle instantly. Use the joystick (left) to move and swipe the right side of the screen to look around.</p>
+  </div>
+</div>
+
+</div><!-- #ui -->
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+//  CHRONICLES — Complete Mobile RPG
+// ═══════════════════════════════════════════════════════
+
+// ── HISTORICAL DATA ──────────────────────────────────
+const ERAS = [
+  {
+    id:'rome', year:'58 – 50 BC', name:'The Gallic Wars',
+    desc:'Julius Caesar leads Roman legions against the fierce Gallic tribes.',
+    src:'Caesar, Commentarii de Bello Gallico (58–50 BC)',
+    icon:'🦅', fog:0x4a3a2a, sky:0x110c06, gnd:0x2a2010, enem:0x5a3a1a, play:0x9a8a68,
+    lore:'The Gallic Wars (58–50 BC) are documented in Caesar\'s own Commentarii, a primary source used across European school curricula. The conquest shaped the cultural and linguistic foundation of modern France.',
+    quotes:[
+      {t:'The die is cast.',s:'Julius Caesar, crossing the Rubicon — Suetonius, Lives of the Twelve Caesars'},
+      {t:'I came, I saw, I conquered.',s:'Julius Caesar — Suetonius'},
+      {t:'Men willingly believe what they wish.',s:'Caesar, De Bello Gallico, III.18'},
+      {t:'Experience is the teacher of all things.',s:'Julius Caesar, De Bello Civili'},
+    ],
+    dquotes:[
+      {t:'Et tu, Bruté?',s:'Shakespeare, Julius Caesar, Act III (drawn from Suetonius)'},
+      {t:'The bravest are those who have the clearest vision of what lies before them — and go out to meet it.',s:'Thucydides, History of the Peloponnesian War, Book II'},
+    ],
+    waves:[
+      {obj:'Repel the Gallic vanguard',kills:5},
+      {obj:'Hold the ridge — destroy the tribal reinforcements',kills:8},
+      {obj:'Break the siege at Alesia',kills:10},
+      {obj:'Crush the chieftain\'s guard',kills:12},
+      {obj:'FINAL: Defeat Vercingetorix\'s last stand',kills:14},
+    ],
+    chars:[
+      {id:'caesar',name:'Julius Caesar',role:'Roman General & Consul',bio:'Military genius and future dictator of Rome. Commanded with the discipline of veteran legions forged over decades of campaign.',stats:{str:85,spd:70,def:90},col:0xb0a070},
+      {id:'vtx',name:'Vercingetorix',role:'Chieftain of the Arverni',bio:'United the Gallic tribes at Alesia in 52 BC. Fought for Gallic freedom with ferocious honor and tactical cunning.',stats:{str:95,spd:85,def:70},col:0x7a5a32},
+    ]
+  },
+  {
+    id:'crusades', year:'1096 – 1099 AD', name:'The First Crusade',
+    desc:'Christian armies march to the Holy Land. Jerusalem falls after a bloody siege.',
+    src:'Gesta Francorum (c.1100); Fulcher of Chartres, Historia Hierosolymitana',
+    icon:'✝', fog:0x5a3a1a, sky:0x140a04, gnd:0x3a2a10, enem:0x4a3020, play:0x9a8a72,
+    lore:'The First Crusade (1095–1099) is central to UNESCO world heritage curricula. Pope Urban II\'s 1095 call at Clermont mobilized 100,000 people across Europe. The siege of Jerusalem ended July 15, 1099.',
+    quotes:[
+      {t:'God wills it! Deus vult!',s:'Pope Urban II, Council of Clermont, 1095 — Robert the Monk\'s account'},
+      {t:'It was not we, but God and the holy sepulcher who led us there.',s:'Gesta Francorum, Book XII'},
+      {t:'The courage of the Franks is invincible; they fear neither fatigue nor danger.',s:'Fulcher of Chartres, Historia Hierosolymitana, I.27'},
+    ],
+    dquotes:[
+      {t:'Jerusalem weeps; she has seen so much blood poured out upon her.',s:'Raymond d\'Aguilers, Historia Francorum (1099)'},
+    ],
+    waves:[
+      {obj:'Secure the crossing at Nicaea',kills:5},
+      {obj:'Break the Turkish assault at Dorylaeum',kills:8},
+      {obj:'Survive the siege of Antioch',kills:10},
+      {obj:'Fight through the walls — breach Jerusalem',kills:12},
+      {obj:'FINAL: Hold the Temple Mount',kills:15},
+    ],
+    chars:[
+      {id:'godfrey',name:'Godfrey of Bouillon',role:'Leader of the First Crusade',bio:'Duke of Lower Lorraine. First ruler of Jerusalem. Refused a crown of gold where Christ wore a crown of thorns.',stats:{str:88,spd:72,def:92},col:0xc8b870},
+      {id:'raymond',name:'Raymond IV of Toulouse',role:'Count & Crusade Commander',bio:'Veteran of the Spanish Reconquista. Oldest and most experienced of the Crusade\'s commanders. Renowned for his piety and tactical discipline.',stats:{str:80,spd:65,def:95},col:0xa09062},
+    ]
+  },
+  {
+    id:'agincourt', year:'25 October 1415', name:'Battle of Agincourt',
+    desc:'Henry V leads 6,000 men against 25,000 French. Longbowmen decide the day.',
+    src:'Shakespeare, Henry V (1599); Holinshed\'s Chronicles (1587)',
+    icon:'🏹', fog:0x3a3a28, sky:0x0a0a06, gnd:0x1e1e12, enem:0x2a3a1a, play:0x6a5a40,
+    lore:'Agincourt (1415) is immortalised in Shakespeare\'s Henry V — a cornerstone of English-language education globally. The Welsh longbow, firing 10 aimed arrows per minute, overcame a force four times larger.',
+    quotes:[
+      {t:'We few, we happy few, we band of brothers.',s:'Shakespeare, Henry V, Act IV Scene 3 (1599)'},
+      {t:'Once more unto the breach, dear friends, once more.',s:'Shakespeare, Henry V, Act III Scene 1'},
+      {t:'The King\'s name is a tower of strength.',s:'Shakespeare, Richard III, Act V Scene 3'},
+    ],
+    dquotes:[
+      {t:'For many lives stand between me and home.',s:'Shakespeare, Henry V, Act I'},
+    ],
+    waves:[
+      {obj:'Hold the narrow field — repel the French cavalry',kills:5},
+      {obj:'Rain arrows on the charging knights',kills:7},
+      {obj:'Drive back the French men-at-arms',kills:10},
+      {obj:'Protect the King — cut down his assailants',kills:11},
+      {obj:'FINAL: Shatter the last French assault',kills:13},
+    ],
+    chars:[
+      {id:'henry',name:'Henry V of England',role:'King of England',bio:'The warrior-king whose Saint Crispin\'s Day speech became legend before the battle even ended. Outnumbered 4 to 1, he led from the front.',stats:{str:90,spd:80,def:85},col:0xd0c090},
+      {id:'archer',name:'The English Longbowman',role:'Welsh Archer, Common Soldier',bio:'The common soldier whose skill decided Agincourt. A trained longbowman loosed 10 aimed arrows per minute — unmatched until firearms.',stats:{str:72,spd:95,def:60},col:0x807060},
+    ]
+  },
+  {
+    id:'waterloo', year:'18 June 1815', name:'Battle of Waterloo',
+    desc:'Napoleon\'s final gamble. The fate of Europe decided in a single afternoon.',
+    src:'Victor Hugo, Les Misérables (1862); Wellington\'s Waterloo Dispatch',
+    icon:'🎖', fog:0x28283a, sky:0x070710, gnd:0x181820, enem:0x28283a, play:0x4a4a5a,
+    lore:'Waterloo (1815) is covered by UNESCO and in all European history curricula as the end of the Napoleonic era. Victor Hugo\'s 20-page meditation on the battle in Les Misérables is one of literature\'s greatest historical essays.',
+    quotes:[
+      {t:'Nothing except a battle lost can be half so melancholy as a battle won.',s:'Duke of Wellington, letter from Waterloo, 1815'},
+      {t:'Waterloo is a battle of the first rank won by a general of the second.',s:'Victor Hugo, Les Misérables, Part 2, Book I (1862)'},
+      {t:'In war, three-quarters turns on personal character and relations; the balance of manpower counts only for the remaining quarter.',s:'Napoleon Bonaparte, Correspondance, Vol. XXXI'},
+    ],
+    dquotes:[
+      {t:'The Guard dies; it does not surrender.',s:'Attributed to General Cambronne at Waterloo, 1815'},
+      {t:'Able was I ere I saw Elba.',s:'Traditional palindrome attributed to Napoleon'},
+    ],
+    waves:[
+      {obj:'Seize the ridge before Wellington reinforces',kills:5},
+      {obj:'Push through the Allied centre',kills:8},
+      {obj:'Repel the Prussian flank attack',kills:10},
+      {obj:'Commit the Imperial Guard',kills:12},
+      {obj:'FINAL: Hold the last line — Vive l\'Empereur!',kills:14},
+    ],
+    chars:[
+      {id:'napo',name:'Napoleon Bonaparte',role:'Emperor of the French',bio:'The master of the grand battery and the massed column. At Waterloo his final battle — aged 45, ill, but still the most feared commander in Europe.',stats:{str:82,spd:75,def:88},col:0x3a3a5a},
+      {id:'welly',name:'Duke of Wellington',role:'British Field Marshal',bio:'"The Iron Duke." Veteran of Assaye and the Peninsular War. At Mont-Saint-Jean he held his ridge through eight hours of assault until the Prussians arrived.',stats:{str:78,spd:72,def:98},col:0x5a5a3a},
+    ]
+  },
+  {
+    id:'somme', year:'1 July 1916', name:'Battle of the Somme',
+    desc:'57,000 Allied casualties in a single day. The industrial horror of modern war.',
+    src:'Remarque, All Quiet on the Western Front (1929); Imperial War Museum',
+    icon:'🪖', fog:0x1e1e1e, sky:0x040404, gnd:0x141410, enem:0x2e2e26, play:0x507050,
+    lore:'The Somme (1916) is the most studied WWI battle in European and UN curricula. Remarque\'s All Quiet on the Western Front — banned in Germany and later restored — is a UNESCO-recognised literary monument.',
+    quotes:[
+      {t:'We are not youth any longer. We fly from ourselves.',s:'Erich Maria Remarque, All Quiet on the Western Front (1929), Ch. 7'},
+      {t:'Every day that this war continues is a crime against humanity.',s:'Romain Rolland, Above the Battle (1914)'},
+      {t:'At the sound of the first drum beat we discover that our world of yesterday will never come back.',s:'Remarque, All Quiet on the Western Front, Ch. 1'},
+    ],
+    dquotes:[
+      {t:'He fell in October 1918, on a day so still the army report said only: All quiet on the Western Front.',s:'Erich Maria Remarque — Final line'},
+    ],
+    waves:[
+      {obj:'Go over the top — reach the first trench line',kills:5},
+      {obj:'Fight through No Man\'s Land',kills:8},
+      {obj:'Capture the fortified position',kills:10},
+      {obj:'Hold the ground under counterattack',kills:12},
+      {obj:'FINAL: Survive the last offensive push',kills:14},
+    ],
+    chars:[
+      {id:'tommy',name:'Private Thomas Atkins',role:'British Infantry, Pals Battalion',bio:'The archetypal British soldier — named from the specimen form used since Wellington\'s day. Young, undertrained, sent over the top at 7:30 AM on July 1, 1916.',stats:{str:72,spd:80,def:68},col:0x507050},
+      {id:'hans',name:'Gefreiter Hans Kellner',role:'German Infantryman, 6th Division',bio:'The German soldier who shares the same fear, the same mud. Remarque\'s great act was giving him the same humanity as any Allied soldier.',stats:{str:75,spd:78,def:75},col:0x505038},
+    ]
+  },
+  {
+    id:'dday', year:'6 June 1944', name:'D-Day — Normandy',
+    desc:'Operation Overlord. The largest amphibious assault in history begins.',
+    src:'Eisenhower, Crusade in Europe (1948); UN Charter (1945)',
+    icon:'🌊', fog:0x182030, sky:0x040810, gnd:0x101820, enem:0x2e2e28, play:0x406040,
+    lore:'D-Day is covered in UN historical archives as the decisive military action enabling the post-war international order. The UN Charter was signed exactly one year later, in June 1945.',
+    quotes:[
+      {t:'Soldiers, Sailors and Airmen — You are about to embark upon the Great Crusade.',s:'General Eisenhower, Order of the Day, 6 June 1944'},
+      {t:'We shall fight on the beaches, we shall fight on the landing grounds, we shall never surrender.',s:'Winston Churchill, House of Commons, 4 June 1940'},
+      {t:'The United Nations was born of the necessity of war and the necessity of peace.',s:'UN Yearbook 1946-47, Introduction'},
+    ],
+    dquotes:[
+      {t:'They shall grow not old, as we that are left grow old.',s:'Laurence Binyon, For the Fallen (1914)'},
+    ],
+    waves:[
+      {obj:'Storm the beach — reach the seawall',kills:5},
+      {obj:'Neutralise the MG nest',kills:8},
+      {obj:'Secure the bluff',kills:10},
+      {obj:'Push inland — break the perimeter',kills:12},
+      {obj:'FINAL: Hold the beachhead until reinforcements arrive',kills:15},
+    ],
+    chars:[
+      {id:'gi',name:'Sergeant James O\'Brien',role:'U.S. Army, 1st Infantry Division',bio:'"The Big Red One." Veterans of North Africa and Sicily now facing the Atlantic Wall on Omaha Beach. Training, discipline, and desperate courage.',stats:{str:80,spd:82,def:76},col:0x406040},
+      {id:'marie',name:'Marie Dupont',role:'French Resistance Fighter',bio:'Thousands of Résistance members coordinated with the Allies on D-Day. Sabotage, intelligence, and courage behind enemy lines — many of them women.',stats:{str:70,spd:94,def:65},col:0x304540},
+    ]
+  },
+];
+
+// ── GAME STATE ───────────────────────────────────────
+const G = {
+  era:null, char:null, eraIdx:0,
+  hp:100, maxHp:100, stam:100,
+  kills:0, wave:1, maxWaves:5,
+  waveKillTarget:5, waveKilled:0,
+  paused:false, playing:false,
+};
+
+// ── THREE.JS SETUP ────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('cv'),antialias:false,powerPreference:'high-performance'});
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||window.innerWidth<768;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,IS_MOBILE?1.5:2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.shadowMap.enabled=false;
+renderer.toneMapping=THREE.ReinhardToneMapping;
+renderer.toneMappingExposure=1.1;
+
+const scene=new THREE.Scene();
+const clock=new THREE.Clock();
+const cam=new THREE.PerspectiveCamera(72,window.innerWidth/window.innerHeight,0.1,280);
+
+// ── NOISE ─────────────────────────────────────────────
+const h=(x,z)=>Math.abs(Math.sin(x*127.1+z*311.7+x*z*74.7)*43758.5453)%1;
+function fbm(x,z,o){let v=0,a=1,f=1,m=0;for(let i=0;i<o;i++){const xi=Math.floor(x*f),zi=Math.floor(z*f),fx=(x*f)-xi,fz=(z*f)-zi,ux=fx*fx*(3-2*fx),uz=fz*fz*(3-2*fz),A=h(xi,zi),B=h(xi+1,zi),C=h(xi,zi+1),D=h(xi+1,zi+1);v+=(A+(B-A)*ux+(C-A)*uz+(D-A-B+C)*ux*uz)*a;m+=a;a*=.5;f*=2;}return v/m;}
+function tHeight(x,z){const d=Math.sqrt(x*x+z*z),c=Math.max(0,1-d/20);let h2=fbm(x/10,z/10,4)*6-1.5;h2*=(1-c*.7);if(d<15)h2*=.15;return h2;}
+
+// ── INPUT ─────────────────────────────────────────────
+const keys={};
+const joy={act:false,id:-1,sx:0,sy:0,dx:0,dy:0};
+const camT={act:false,id:-1,lx:0,ly:0};
+let camX=0,camY=.55,touchSprint=false;
+const mouse={locked:false};
+let atkCool=0,dodgeTimer=0,dodgeCool=0;
+const dodgeDir=new THREE.Vector3();
+
+document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Escape'&&G.playing)togglePause();if(e.code==='Space')e.preventDefault();});
+document.addEventListener('keyup',e=>{keys[e.code]=false;});
+document.getElementById('cv').addEventListener('click',()=>{if(G.playing&&!G.paused&&!IS_MOBILE)renderer.domElement.requestPointerLock();});
+document.addEventListener('pointerlockchange',()=>{mouse.locked=document.pointerLockElement===renderer.domElement;});
+document.addEventListener('mousemove',e=>{if(mouse.locked){camX-=e.movementX*.003;camY=Math.max(.08,Math.min(1.25,camY-e.movementY*.003));}});
+document.addEventListener('mousedown',e=>{if(e.button===0&&G.playing&&!G.paused&&playerG)doAttack();});
+
+// ── TOUCH SETUP ───────────────────────────────────────
+function initTouch(){
+  const jz=document.getElementById('jzone');
+  const cz=document.getElementById('camzone');
+  const atk=document.getElementById('abt-atk');
+  const dg=document.getElementById('abt-dg');
+  const sp=document.getElementById('abt-sp');
+  const pb=document.getElementById('pause-btn');
+
+  // Joystick
+  jz.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];joy.act=true;joy.id=t.identifier;const r=jz.getBoundingClientRect();joy.sx=r.left+r.width/2;joy.sy=r.top+r.height/2;moveJoy(t.clientX,t.clientY);},{passive:false});
+  jz.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joy.id)moveJoy(t.clientX,t.clientY);},{passive:false});
+  const endJoy=e=>{for(const t of e.changedTouches)if(t.identifier===joy.id){joy.act=false;joy.dx=0;joy.dy=0;document.getElementById('jknob').style.transform='translate(-50%,-50%)';}};
+  jz.addEventListener('touchend',endJoy,{passive:false});jz.addEventListener('touchcancel',endJoy,{passive:false});
+
+  // Camera
+  cz.addEventListener('touchstart',e=>{e.preventDefault();if(!camT.act){const t=e.changedTouches[0];camT.act=true;camT.id=t.identifier;camT.lx=t.clientX;camT.ly=t.clientY;}},{passive:false});
+  cz.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===camT.id){camX-=(t.clientX-camT.lx)*.006;camY=Math.max(.08,Math.min(1.25,camY-(t.clientY-camT.ly)*.006));camT.lx=t.clientX;camT.ly=t.clientY;}},{passive:false});
+  const endCam=e=>{for(const t of e.changedTouches)if(t.identifier===camT.id)camT.act=false;};
+  cz.addEventListener('touchend',endCam,{passive:false});cz.addEventListener('touchcancel',endCam,{passive:false});
+
+  // Buttons
+  const tBtn=(el,fn)=>{el.addEventListener('touchstart',e=>{e.preventDefault();el.classList.add('pr');fn();},{passive:false});const off=e=>{e.preventDefault();el.classList.remove('pr');};el.addEventListener('touchend',off,{passive:false});el.addEventListener('touchcancel',off,{passive:false});};
+  tBtn(atk,()=>{if(G.playing&&!G.paused&&playerG)doAttack();});
+  tBtn(dg,triggerDodge);
+  sp.addEventListener('touchstart',e=>{e.preventDefault();sp.classList.add('pr');touchSprint=true;},{passive:false});
+  const spOff=e=>{e.preventDefault();sp.classList.remove('pr');touchSprint=false;};
+  sp.addEventListener('touchend',spOff,{passive:false});sp.addEventListener('touchcancel',spOff,{passive:false});
+  pb.addEventListener('touchstart',e=>{e.preventDefault();if(G.playing)togglePause();},{passive:false});
+  pb.addEventListener('click',()=>{if(G.playing)togglePause();});
+}
+
+function moveJoy(cx,cy){
+  const MR=54;let dx=cx-joy.sx,dy=cy-joy.sy;
+  const d=Math.sqrt(dx*dx+dy*dy);if(d>MR){dx=dx/d*MR;dy=dy/d*MR;}
+  joy.dx=dx/MR;joy.dy=dy/MR;
+  document.getElementById('jknob').style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+}
+
+function triggerDodge(){
+  if(dodgeCool>0||G.stam<30||!G.playing||G.paused||!playerG)return;
+  dodgeCool=1.6;dodgeTimer=.28;G.stam-=30;
+  const fwd=new THREE.Vector3(-Math.sin(camX),0,-Math.cos(camX));
+  if(joy.act&&(Math.abs(joy.dx)>.1||Math.abs(joy.dy)>.1))dodgeDir.set(joy.dx,0,joy.dy).normalize();
+  else dodgeDir.copy(fwd);
+}
+
+// ── PLAYER ────────────────────────────────────────────
+let playerG=null;
+const pVel=new THREE.Vector3();
+let walkT=0;
+let enemies=[], parts=[];
+let shakeI=0;
+
+function updatePlayer(dt){
+  if(!playerG||!G.playing||G.paused)return;
+  G.stam=Math.min(100,G.stam+dt*14);
+  updateHPBar();
+
+  const sprint=keys['ShiftLeft']||keys['ShiftRight']||touchSprint;
+  const spd=sprint?7.5:4.5;
+  const fwd=new THREE.Vector3(-Math.sin(camX),0,-Math.cos(camX));
+  const rgt=new THREE.Vector3(Math.cos(camX),0,-Math.sin(camX));
+  let mov=false;
+  pVel.set(0,0,0);
+  if(keys['KeyW']||keys['ArrowUp']){pVel.addScaledVector(fwd,spd);mov=true;}
+  if(keys['KeyS']||keys['ArrowDown']){pVel.addScaledVector(fwd,-spd);mov=true;}
+  if(keys['KeyA']||keys['ArrowLeft']){pVel.addScaledVector(rgt,-spd);mov=true;}
+  if(keys['KeyD']||keys['ArrowRight']){pVel.addScaledVector(rgt,spd);mov=true;}
+  if(joy.act&&(Math.abs(joy.dx)>.05||Math.abs(joy.dy)>.05)){pVel.addScaledVector(rgt,joy.dx*spd);pVel.addScaledVector(fwd,-joy.dy*spd);mov=true;}
+  if(keys['Space']){triggerDodge();keys['Space']=false;}
+  if(dodgeCool>0)dodgeCool-=dt;
+  if(dodgeTimer>0){dodgeTimer-=dt;pVel.addScaledVector(dodgeDir,13);mov=true;}
+  if(playerG.userData.kb&&playerG.userData.kb.length()>.01){pVel.add(playerG.userData.kb);playerG.userData.kb.multiplyScalar(.78);}
+  playerG.userData.mov=mov;
+  playerG.position.addScaledVector(pVel,dt);
+  if(playerG.position.length()>54)playerG.position.normalize().multiplyScalar(54);
+  playerG.position.y=tHeight(playerG.position.x,playerG.position.z);
+  if(mov&&pVel.length()>.1){const ta=Math.atan2(pVel.x,pVel.z);playerG.rotation.y=lerpA(playerG.rotation.y,ta,dt*10);}
+  else playerG.rotation.y=lerpA(playerG.rotation.y,camX+Math.PI,dt*7);
+  animChar(playerG,dt,mov,spd);
+  if(atkCool>0)atkCool-=dt;
+}
+
+function animChar(g,dt,mov,spd){
+  if(g.userData.atkT>0){
+    g.userData.atkT-=dt;const t=g.userData.atkT/.28;
+    if(g.userData.rArm)g.userData.rArm.rotation.x=-Math.PI*t*.5;
+    if(g.userData.wep)g.userData.wep.rotation.x=.28-Math.PI*t*.5;
+  } else {
+    if(g.userData.rArm)g.userData.rArm.rotation.x+=(0-g.userData.rArm.rotation.x)*dt*8;
+    if(g.userData.wep)g.userData.wep.rotation.x+=(.28-g.userData.wep.rotation.x)*dt*8;
+  }
+  if(mov){walkT+=dt*(spd||4.5)*2.8;
+    if(g.userData.lLeg)g.userData.lLeg.rotation.x=Math.sin(walkT)*.38;
+    if(g.userData.rLeg)g.userData.rLeg.rotation.x=-Math.sin(walkT)*.38;
+    if(g.userData.lArm)g.userData.lArm.rotation.x=Math.sin(walkT+Math.PI)*.28;
+  } else {
+    if(g.userData.lLeg)g.userData.lLeg.rotation.x*=.84;
+    if(g.userData.rLeg)g.userData.rLeg.rotation.x*=.84;
+    if(g.userData.lArm)g.userData.lArm.rotation.x*=.84;
+  }
+  if(g.userData.head)g.userData.head.position.y=1.72+Math.sin(Date.now()*.0019)*.018;
+}
+
+// ── ATTACK ────────────────────────────────────────────
+function doAttack(){
+  if(atkCool>0||!playerG)return;
+  atkCool=.48;
+  playerG.userData.atkT=.28;
+  let hit=false;
+  enemies.forEach(e=>{
+    if(!e.userData.alive)return;
+    const d=playerG.position.distanceTo(e.position);
+    if(d<3.6){const dmg=22+Math.floor(Math.random()*22);hitEnemy(e,dmg);showDmgNum(dmg,e.position);hit=true;}
+  });
+  if(hit)shakeI=.14;
+}
+
+function hitEnemy(e,dmg){
+  e.userData.hp-=dmg;
+  if(e.userData.hbar){const r=Math.max(0,e.userData.hp/e.userData.maxHp);e.userData.hbar.scale.x=r;e.userData.hbar.position.x=(r-1)*.4;if(r<.3)e.userData.hbar.material.color.setHex(0xff6600);}
+  e.userData.kb=e.position.clone().sub(playerG.position).normalize().multiplyScalar(6);
+  if(e.userData.hp<=0)killEnemy(e);
+}
+
+function killEnemy(e){
+  e.userData.alive=false;G.kills++;G.waveKilled++;
+  document.getElementById('kill-n').textContent=G.kills;
+  document.getElementById('obj-prog').textContent=G.waveKilled+' / '+G.waveKillTarget;
+  showKillNotif();spawnBlood(e.position.clone());
+  checkWaveObjective();
+}
+
+function hurtPlayer(dmg){
+  G.hp=Math.max(0,G.hp-dmg);
+  updateHPBar();
+  const fl=document.getElementById('dmgflash');fl.classList.add('hit');setTimeout(()=>fl.classList.remove('hit'),140);
+  shakeI=.28;if(G.hp<=0)gameOver();
+}
+
+function updateHPBar(){
+  document.getElementById('hp-fill').style.width=((G.hp/G.maxHp)*100)+'%';
+  document.getElementById('hp-num').textContent=Math.ceil(G.hp);
+  document.getElementById('stam-fill').style.width=G.stam+'%';
+}
+
+// ── OBJECTIVE SYSTEM ──────────────────────────────────
+function checkWaveObjective(){
+  const alive=enemies.filter(e=>e.userData.alive).length;
+  const spawned=waveSpawnDone;
+  if(spawned&&alive===0){
+    showObjComplete();
+    waveActive=false;
+    if(G.wave>=G.maxWaves)setTimeout(()=>victory(),1200);
+    else setTimeout(()=>beginWave(G.wave+1),3000);
+  }
+}
+
+function showObjComplete(){
+  const banner=document.getElementById('obj-banner');
+  const wData=G.era.waves[G.wave-1];
+  document.getElementById('ob-txt').textContent='OBJECTIVE COMPLETE';
+  document.getElementById('ob-sub').textContent=wData?wData.obj:'Wave cleared';
+  banner.classList.add('show');setTimeout(()=>banner.classList.remove('show'),2200);
+}
+
+// ── ENEMIES ───────────────────────────────────────────
+let waveActive=false,waveSpawnTimer=0,waveSpawnCount=0,waveSpawnDone=false;
+
+function spawnEnemy(){
+  const a=Math.random()*Math.PI*2,d=21+Math.random()*10;
+  const e=buildChar(G.era.enem,false);
+  e.position.set(Math.cos(a)*d,0,Math.sin(a)*d);
+  e.position.y=tHeight(e.position.x,e.position.z);
+  scene.add(e);enemies.push(e);
+}
+
+function updateEnemies(dt){
+  for(let i=enemies.length-1;i>=0;i--){
+    const e=enemies[i];
+    if(!e.userData.alive){
+      e.userData.deathT-=dt;e.rotation.z+=dt*2.2;e.position.y-=dt*1.8;
+      if(e.userData.hbar)e.userData.hbar.visible=false;
+      if(e.userData.deathT<=0){scene.remove(e);enemies.splice(i,1);}
+      continue;
+    }
+    e.position.y=tHeight(e.position.x,e.position.z);
+    if(playerG){
+      const toP=playerG.position.clone().sub(e.position);const dist=toP.length();toP.normalize();
+      e.rotation.y=Math.atan2(toP.x,toP.z);
+      if(e.userData.kb&&e.userData.kb.length()>.01){e.position.addScaledVector(e.userData.kb,dt);e.userData.kb.multiplyScalar(.7);}
+      else if(dist>1.75){e.position.addScaledVector(toP,e.userData.spd*dt);e.userData.mov=true;}
+      else{e.userData.mov=false;e.userData.atkCool-=dt;if(e.userData.atkCool<=0&&G.playing&&!G.paused){e.userData.atkCool=1.55;e.userData.atkT=.25;hurtPlayer(7+Math.floor(Math.random()*9));}}
+      if(e.position.length()>57)e.position.normalize().multiplyScalar(57);
+      e.userData.atkCool=Math.max(e.userData.atkCool-0,e.userData.atkCool);
+      animChar(e,dt,e.userData.mov,e.userData.spd);
+      if(e.userData.hbar){e.children.forEach(c=>{if(c.geometry&&c.geometry.type==='PlaneGeometry')c.lookAt(cam.position);});}
+    }
+  }
+}
+
+// ── WAVE SYSTEM ───────────────────────────────────────
+function beginWave(n){
+  G.wave=n;G.waveKilled=0;
+  const wData=G.era.waves[n-1]||{obj:'Defeat all enemies',kills:5+n*2};
+  G.waveKillTarget=wData.kills;
+  waveSpawnCount=0;waveSpawnTimer=0;waveSpawnDone=false;waveActive=true;
+  document.getElementById('wave-txt').textContent='WAVE '+toRom(n);
+  document.getElementById('obj-txt').textContent=wData.obj;
+  document.getElementById('obj-prog').textContent='0 / '+G.waveKillTarget;
+  showWaveIntro(n,wData);
+  if(n===1||n%2===0)showQuote();
+}
+
+function updateWaves(dt){
+  if(!waveActive||!G.playing||G.paused)return;
+  waveSpawnTimer-=dt;
+  if(waveSpawnTimer<=0&&waveSpawnCount<G.waveKillTarget){
+    spawnEnemy();waveSpawnCount++;
+    waveSpawnTimer=1.5+Math.max(0,(.4*(5-G.wave)));
+  }
+  if(waveSpawnCount>=G.waveKillTarget)waveSpawnDone=true;
+  // Also check if all killed (catches edge case)
+  if(waveSpawnDone&&enemies.filter(e=>e.userData.alive).length===0&&waveActive){
+    checkWaveObjective();
+  }
+}
+
+// ── CAMERA ────────────────────────────────────────────
+function updateCam(){
+  if(!playerG)return;
+  const px=playerG.position.x,py=playerG.position.y,pz=playerG.position.z;
+  const tx=px+Math.sin(camX)*Math.cos(camY)*8;
+  const ty=py+Math.sin(camY)*8+1.8;
+  const tz=pz+Math.cos(camX)*Math.cos(camY)*8;
+  cam.position.lerp(new THREE.Vector3(tx,ty,tz),.11);
+  cam.lookAt(px,py+1.5,pz);
+  if(shakeI>.001){cam.position.x+=(Math.random()-.5)*shakeI;cam.position.y+=(Math.random()-.5)*shakeI;shakeI*=.82;}
+}
+
+// ── PARTICLES ─────────────────────────────────────────
+function spawnBlood(pos){
+  for(let i=0;i<(IS_MOBILE?5:8);i++){
+    const p=new THREE.Mesh(new THREE.SphereGeometry(.05+Math.random()*.07,4,4),new THREE.MeshBasicMaterial({color:0x880000}));
+    p.position.copy(pos);p.position.y+=.9;
+    p.userData={v:new THREE.Vector3((Math.random()-.5)*6,Math.random()*7+1.5,(Math.random()-.5)*6),life:.45+Math.random()*.45,blood:true};
+    scene.add(p);parts.push(p);
+  }
+}
+
+function updateParts(dt){
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i];
+    if(p.userData.blood){
+      p.userData.life-=dt;p.userData.v.y-=18*dt;
+      p.position.addScaledVector(p.userData.v,dt);
+      p.material.opacity=Math.max(0,p.userData.life*2);p.material.transparent=true;
+      if(p.userData.life<=0){scene.remove(p);parts.splice(i,1);}
+    } else {
+      p.position.y+=p.userData.spd;p.position.x+=p.userData.dr;
+      if(p.position.y>14)p.position.y=1+Math.random()*2;
+    }
+  }
+}
+
+// ── CHARACTER MESH ────────────────────────────────────
+function buildChar(color,isPlayer){
+  const g=new THREE.Group();
+  const M=c=>new THREE.MeshStandardMaterial({color:c,roughness:.78,metalness:.08});
+  const MX=new THREE.MeshStandardMaterial({color:0x7a7a7a,metalness:.82,roughness:.28});
+  const col=typeof color==='number'?color:0x888888;
+  const mat=M(col);const dark=M(new THREE.Color(col).multiplyScalar(.48));
+
+  const add=(geo,m,x,y,z)=>{const mesh=new THREE.Mesh(geo,m);mesh.position.set(x,y,z);g.add(mesh);return mesh;};
+  add(new THREE.BoxGeometry(.64,.84,.38),mat,0,1.1,0);
+  add(new THREE.BoxGeometry(.27,.19,.40),MX,-.42,1.42,0);
+  add(new THREE.BoxGeometry(.27,.19,.40),MX,.42,1.42,0);
+  const head=add(new THREE.BoxGeometry(.42,.43,.38),mat,0,1.72,0);
+  add(new THREE.BoxGeometry(.47,.18,.44),MX,0,1.94,0);
+  const lArm=add(new THREE.BoxGeometry(.21,.68,.21),mat,-.46,1.0,0);
+  const rArm=add(new THREE.BoxGeometry(.21,.68,.21),mat,.46,1.0,0);
+  const wep=add(new THREE.BoxGeometry(.055,.88,.055),new THREE.MeshStandardMaterial({color:0xc0c0c0,metalness:.9,roughness:.18}),.59,1.0,-.08);
+  wep.rotation.x=.28;
+  add(new THREE.BoxGeometry(.58,.28,.36),dark,0,.65,0);
+  const lLeg=add(new THREE.BoxGeometry(.24,.68,.23),dark,-.16,.3,0);
+  const rLeg=add(new THREE.BoxGeometry(.24,.68,.23),dark,.16,.3,0);
+  add(new THREE.BoxGeometry(.26,.18,.36),dark,-.16,-.04,.07);
+  add(new THREE.BoxGeometry(.26,.18,.36),dark,.16,-.04,.07);
+
+  g.userData={lLeg,rLeg,lArm,rArm,wep,head,atkT:0,mov:false,isPlayer,
+    hp:isPlayer?100:32+Math.floor(Math.random()*20),
+    maxHp:0,spd:isPlayer?0:1.15+Math.random()*.85,
+    atkCool:Math.random(),alive:true,kb:new THREE.Vector3(),deathT:1.0};
+  g.userData.maxHp=g.userData.hp;
+
+  if(!isPlayer){
+    const hbg=new THREE.Mesh(new THREE.PlaneGeometry(.82,.1),new THREE.MeshBasicMaterial({color:0x2a0000,depthTest:false}));
+    hbg.position.set(0,2.3,0);g.add(hbg);
+    const hb=new THREE.Mesh(new THREE.PlaneGeometry(.8,.08),new THREE.MeshBasicMaterial({color:0xcc2222,depthTest:false}));
+    hb.position.set(0,2.3,.01);g.add(hb);
+    g.userData.hbar=hb;
+  }
+  return g;
+}
+
+// ── SCENE BUILD ───────────────────────────────────────
+function buildScene(era){
+  while(scene.children.length)scene.remove(scene.children[0]);
+  enemies=[];parts=[];
+  scene.fog=new THREE.FogExp2(era.fog,IS_MOBILE?.028:.022);
+  scene.background=new THREE.Color(era.sky);
+
+  scene.add(new THREE.AmbientLight(0x301a0a,2.0));
+  const sun=new THREE.DirectionalLight(0xffd090,2.6);sun.position.set(30,60,-20);scene.add(sun);
+  scene.add(new THREE.DirectionalLight(0x1a2040,.65));
+
+  const nFire=IS_MOBILE?4:6;
+  for(let i=0;i<nFire;i++){
+    const fl=new THREE.PointLight(0xff6600,3,15);
+    const a=(i/nFire)*Math.PI*2;fl.position.set(Math.cos(a)*25,2,Math.sin(a)*25);
+    fl.userData.bi=3;fl.userData.fs=.1+Math.random()*.2;scene.add(fl);
+  }
+
+  // Terrain
+  const S=IS_MOBILE?38:60;
+  const tg=new THREE.PlaneGeometry(110,110,S,S);tg.rotateX(-Math.PI/2);
+  const pa=tg.attributes.position.array;
+  for(let i=0;i<pa.length;i+=3){const x=pa[i]/10,z=pa[i+2]/10,d=Math.sqrt(pa[i]*pa[i]+pa[i+2]*pa[i+2]),c=Math.max(0,1-d/20);let hv=fbm(x,z,4)*6-1.5;hv*=(1-c*.7);if(d<15)hv*=.15;pa[i+1]=hv;}
+  tg.computeVertexNormals();
+  const gnd=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({color:era.gnd,roughness:.96,metalness:.01}));
+  gnd.receiveShadow=false;scene.add(gnd);
+
+  // Rocks
+  const nR=IS_MOBILE?14:24;
+  for(let i=0;i<nR;i++){
+    const a=Math.random()*Math.PI*2,d=10+Math.random()*44,s=.3+Math.random()*1.1;
+    const r=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),new THREE.MeshStandardMaterial({color:new THREE.Color(era.gnd).multiplyScalar(.75),roughness:1}));
+    r.position.set(Math.cos(a)*d,s*.3,Math.sin(a)*d);r.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);scene.add(r);
+  }
+
+  addEraProps(era);
+
+  playerG=buildChar(era.play,true);playerG.position.set(0,0,0);scene.add(playerG);
+
+  // Smoke
+  for(let i=0;i<(IS_MOBILE?8:16);i++){
+    const pm=new THREE.Mesh(new THREE.SphereGeometry(.3+Math.random()*.45,5,5),new THREE.MeshBasicMaterial({color:0x1c1c1c,transparent:true,opacity:.14+Math.random()*.18}));
+    const a=Math.random()*Math.PI*2,d=6+Math.random()*38;
+    pm.position.set(Math.cos(a)*d,2+Math.random()*7,Math.sin(a)*d);
+    pm.userData={spd:.005+Math.random()*.009,dr:(Math.random()-.5)*.015,blood:false};
+    scene.add(pm);parts.push(pm);
+  }
+}
+
+function addEraProps(era){
+  if(era.id==='rome'){
+    for(let i=0;i<(IS_MOBILE?5:8);i++){const h2=1.5+Math.random()*4;const co=new THREE.Mesh(new THREE.CylinderGeometry(.38,.44,h2,7),new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.8}));const a=(i/(IS_MOBILE?5:8))*Math.PI*2,d=19+Math.random()*14;co.position.set(Math.cos(a)*d,h2/2-1,Math.sin(a)*d);co.rotation.z=(Math.random()-.5)*.28;scene.add(co);}
+  } else if(era.id==='somme'||era.id==='dday'){
+    for(let i=0;i<8;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(3.8,.9,.9),new THREE.MeshStandardMaterial({color:0x383026,roughness:1}));const a=(i/8)*Math.PI*2;b.position.set(Math.cos(a)*18,0,Math.sin(a)*18);b.rotation.y=a;scene.add(b);}
+  } else if(era.id==='waterloo'){
+    for(let i=0;i<4;i++){const c=new THREE.Mesh(new THREE.CylinderGeometry(.28,.38,2.4,7),new THREE.MeshStandardMaterial({color:0x2c2c2c,metalness:.65,roughness:.45}));const a=(i/4)*Math.PI*2,d=20;c.position.set(Math.cos(a)*d,.45,Math.sin(a)*d);c.rotation.z=Math.PI/2;c.rotation.y=a;scene.add(c);}
+  }
+}
+
+// ── MENU SCENE ────────────────────────────────────────
+let menuActive=true,menuT=0;
+function buildMenuScene(){
+  while(scene.children.length)scene.remove(scene.children[0]);
+  parts=[];
+  scene.fog=new THREE.FogExp2(0x0d0a06,.038);
+  scene.background=new THREE.Color(0x050402);
+  scene.add(new THREE.AmbientLight(0x301a0a,1.4));
+  const sl=new THREE.DirectionalLight(0xffa040,1.9);sl.position.set(10,20,5);scene.add(sl);
+  const tg=new THREE.PlaneGeometry(180,180,IS_MOBILE?22:36,IS_MOBILE?22:36);tg.rotateX(-Math.PI/2);
+  const pa=tg.attributes.position.array;
+  for(let i=0;i<pa.length;i+=3)pa[i+1]=fbm(pa[i]/15,pa[i+2]/15,4)*8-3;
+  tg.computeVertexNormals();
+  scene.add(new THREE.Mesh(tg,new THREE.MeshStandardMaterial({color:0x1a1208,roughness:1})));
+  for(let i=0;i<(IS_MOBILE?4:6);i++){const fl=new THREE.PointLight(0xff4400,2,20);fl.position.set((Math.random()-.5)*55,1+Math.random()*2.5,(Math.random()-.5)*55-20);fl.userData.bi=2;fl.userData.fs=.08+Math.random()*.14;scene.add(fl);}
+  for(let i=0;i<(IS_MOBILE?7:12);i++){const sf=buildChar(0x181208,false);sf.position.set((Math.random()-.5)*38,-2,-18-Math.random()*18);if(sf.userData.hbar)sf.userData.hbar.visible=false;scene.add(sf);}
+  cam.position.set(0,5,12);cam.lookAt(0,0,-10);
+}
+
+// ── SCENE ANIM ────────────────────────────────────────
+function tickScene(t){
+  scene.traverse(o=>{if(o.isPointLight&&o.userData.bi)o.intensity=o.userData.bi+Math.sin(t*o.userData.fs*60)*.75;});
+}
+
+// ── MINIMAP ───────────────────────────────────────────
+function drawMinimap(){
+  if(!playerG)return;
+  const cv2=document.getElementById('mmc');const ctx=cv2.getContext('2d');
+  ctx.clearRect(0,0,76,76);ctx.fillStyle='rgba(0,0,0,.82)';ctx.fillRect(0,0,76,76);
+  const sc=76/100,cx=38,cy=38;
+  ctx.fillStyle='#cc2222';
+  enemies.forEach(e=>{if(!e.userData.alive)return;ctx.beginPath();ctx.arc(cx+e.position.x*sc,cy+e.position.z*sc,2.2,0,Math.PI*2);ctx.fill();});
+  ctx.fillStyle='#d4a843';ctx.beginPath();ctx.arc(cx+playerG.position.x*sc,cy+playerG.position.z*sc,3.5,0,Math.PI*2);ctx.fill();
+}
+
+// ── UI HELPERS ────────────────────────────────────────
+const NOTIFS=['FALLEN','SLAIN','DEFEATED','CUT DOWN','VANQUISHED'];
+function showKillNotif(){
+  const el=document.getElementById('kill-notif');
+  document.getElementById('kill-txt').textContent=NOTIFS[Math.floor(Math.random()*NOTIFS.length)];
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),700);
+}
+function showDmgNum(dmg,pos){
+  const v=pos.clone().project(cam);
+  const x=(v.x*.5+.5)*window.innerWidth;const y=(1-(v.y*.5+.5))*window.innerHeight;
+  const el=document.createElement('div');el.className='dmgn';
+  el.style.left=(x-16+Math.random()*32-16)+'px';el.style.top=(y-28)+'px';
+  el.style.fontSize=(1+dmg/44)+'rem';el.textContent=dmg;
+  document.getElementById('ui').appendChild(el);setTimeout(()=>el.remove(),750);
+}
+function showQuote(){
+  if(!G.era)return;
+  const q=G.era.quotes[Math.floor(Math.random()*G.era.quotes.length)];
+  document.getElementById('qp-txt').textContent='"'+q.t+'"';
+  document.getElementById('qp-src').textContent='— '+q.s;
+  const el=document.getElementById('quote-pop');
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),4500);
+}
+function showWaveIntro(n,wData){
+  const el=document.getElementById('wave-intro');
+  el.style.display='flex';
+  // Re-animate: clone trick
+  const txt=document.getElementById('wi-txt');txt.style.animation='none';
+  requestAnimationFrame(()=>{txt.style.animation='wiFade 2.4s ease forwards';});
+  document.getElementById('wi-txt').textContent='WAVE '+toRom(n);
+  document.getElementById('wi-sub').textContent=waveSub(n);
+  document.getElementById('wi-obj').textContent=wData?'Objective: '+wData.obj:'';
+  setTimeout(()=>{el.style.display='none';},2600);
+}
+const waveSubs=['The vanguard advances','Reinforcements arrive','The tide surges','Unyielding fury rises','⚔ THE FINAL ASSAULT ⚔'];
+function waveSub(n){return waveSubs[Math.min(n-1,4)];}
+function toRom(n){return['I','II','III','IV','V','VI','VII','VIII','IX','X'][n-1]||n;}
+
+// ── SCREEN MANAGER ────────────────────────────────────
+const SCREENS=['loading','menu','era-scr','hud','go-scr','vc-scr','codex-scr','ctrl-scr'];
+const DFLEX=['loading','menu','go-scr','vc-scr','pause-scr'];
+function showScr(id){
+  SCREENS.forEach(s=>{
+    const el=document.getElementById(s);if(!el)return;
+    el.style.display=s===id?(DFLEX.includes(s)?'flex':'block'):'none';
+  });
+  document.getElementById('tc').classList.toggle('active',id==='hud');
+  document.getElementById('xhair').style.display=id==='hud'?'block':'none';
+  // Always hide char-sheet when switching screens
+  if(id!=='char-sheet')document.getElementById('char-sheet').classList.remove('show');
+}
+
+// ── GAME FLOW ─────────────────────────────────────────
+function startGame(){
+  G.hp=G.maxHp=Math.round(80+(G.char?G.char.stats.def/5:16));
+  G.stam=100;G.kills=0;G.wave=1;G.waveKilled=0;G.playing=true;G.paused=false;
+  menuActive=false;
+  updateHPBar();
+  document.getElementById('kill-n').textContent='0';
+  document.getElementById('era-strip-txt').textContent=G.era.year+' · '+G.era.name;
+  buildScene(G.era);
+  camX=0;camY=.55;cam.position.set(0,8,12);
+  showScr('hud');
+  setTimeout(()=>beginWave(1),800);
+}
+
+function togglePause(){
+  G.paused=!G.paused;
+  document.getElementById('pause-scr').style.display=G.paused?'flex':'none';
+  if(G.paused&&document.pointerLockElement)document.exitPointerLock();
+}
+
+function gameOver(){
+  if(!G.playing)return;G.playing=false;
+  if(document.pointerLockElement)document.exitPointerLock();
+  resetJoy();
+  const q=G.era.dquotes[Math.floor(Math.random()*G.era.dquotes.length)];
+  document.getElementById('go-q').textContent='"'+q.t+'"';
+  document.getElementById('go-c').textContent='— '+q.s;
+  document.getElementById('go-sc').textContent=G.kills+' Enemies Slain · Wave '+G.wave+' of '+G.maxWaves;
+  showScr('go-scr');
+}
+function victory(){
+  if(!G.playing)return;G.playing=false;
+  if(document.pointerLockElement)document.exitPointerLock();
+  resetJoy();
+  const q=G.era.quotes[Math.floor(Math.random()*G.era.quotes.length)];
+  document.getElementById('vc-q').textContent='"'+q.t+'"';
+  document.getElementById('vc-c').textContent='— '+q.s;
+  document.getElementById('vc-sc').textContent=G.kills+' Enemies Slain · All '+G.maxWaves+' Waves Survived';
+  showScr('vc-scr');
+}
+
+function resetJoy(){joy.act=false;joy.dx=0;joy.dy=0;document.getElementById('jknob').style.transform='translate(-50%,-50%)';}
+const lerpA=(a,b,t)=>{let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return a+d*t;};
+
+// ── ERA GRID ──────────────────────────────────────────
+function buildEraGrid(){
+  const grid=document.getElementById('era-grid');grid.innerHTML='';
+  ERAS.forEach((era,i)=>{
+    const card=document.createElement('div');card.className='ecard ani';card.style.animationDelay=(i*.07)+'s';
+    card.innerHTML=`<div class="ecard-top"></div><div class="ecard-icon">${era.icon}</div><div class="ecard-year">${era.year}</div><div class="ecard-name">${era.name}</div><div class="ecard-desc">${era.desc}</div><div class="ecard-tap">Tap to enter battle</div>`;
+    const go=()=>{G.era=era;G.eraIdx=i;openCharSheet(era);};
+    card.addEventListener('click',go);
+    card.addEventListener('touchend',e=>{e.preventDefault();go();},{passive:false});
+    grid.appendChild(card);
+  });
+}
+
+// ── CHARACTER SHEET ───────────────────────────────────
+function openCharSheet(era){
+  const row=document.getElementById('char-row');row.innerHTML='';
+  document.getElementById('char-panel-title').textContent=era.icon+' '+era.name;
+  era.chars.forEach(ch=>{
+    const c=document.createElement('div');c.className='ccard ani';
+    c.innerHTML=`<div class="cc-name">${ch.name}</div><div class="cc-role">${ch.role}</div><div class="cc-bio">${ch.bio}</div><div class="cc-stats"><div class="cstat"><div class="cstat-l">STR</div><div class="cstat-b"><div class="cstat-f" style="width:${ch.stats.str}%"></div></div></div><div class="cstat"><div class="cstat-l">SPD</div><div class="cstat-b"><div class="cstat-f" style="width:${ch.stats.spd}%"></div></div></div><div class="cstat"><div class="cstat-l">DEF</div><div class="cstat-b"><div class="cstat-f" style="width:${ch.stats.def}%"></div></div></div></div><button class="cc-go">⚔ Enter Battle as ${ch.name.split(' ')[0]}</button>`;
+    const btn=c.querySelector('.cc-go');
+    const go=()=>{G.char=ch;document.getElementById('char-sheet').classList.remove('show');startGame();};
+    btn.addEventListener('click',go);
+    btn.addEventListener('touchend',e=>{e.preventDefault();go();},{passive:false});
+    row.appendChild(c);
+  });
+  document.getElementById('char-sheet').classList.add('show');
+}
+
+// ── CODEX ─────────────────────────────────────────────
+function buildCodex(){
+  document.getElementById('cxcnt').innerHTML=ERAS.map(era=>`
+    <div style="margin-bottom:30px;border-left:3px solid var(--bronze);padding-left:16px;">
+      <div style="font-size:.68rem;color:var(--bronze);font-family:'Cinzel',serif;letter-spacing:.22em;margin-bottom:4px;">${era.year}</div>
+      <h3 style="font-family:'Cinzel',serif;font-size:clamp(.95rem,4vw,1.25rem);color:var(--gold);margin-bottom:7px;">${era.icon} ${era.name}</h3>
+      <p style="color:var(--ash);line-height:1.58;margin-bottom:9px;font-size:clamp(.76rem,2.2vw,.88rem);">${era.lore}</p>
+      <div>${era.quotes.map(q=>`<div style="margin:6px 0;"><p style="font-style:italic;color:var(--parchment);font-size:clamp(.74rem,2.1vw,.85rem);">"${q.t}"</p><cite style="font-size:.65rem;color:var(--rust);">${q.s}</cite></div>`).join('')}</div>
+      <div style="margin-top:7px;font-size:.66rem;color:var(--ash);font-style:italic;">Source: ${era.src}</div>
+    </div>
+  `).join('');
+}
+
+// ── WIRE UI EVENTS ────────────────────────────────────
+function wire(id,fn){
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('click',fn);
+  el.addEventListener('touchend',e=>{e.preventDefault();fn();},{passive:false});
+}
+wire('b-play',()=>{buildEraGrid();showScr('era-scr');});
+wire('b-codex',()=>{buildCodex();showScr('codex-scr');});
+wire('b-ctrl',()=>showScr('ctrl-scr'));
+wire('b-era-back',()=>showScr('menu'));
+wire('b-codex-back',()=>showScr('menu'));
+wire('b-ctrl-back',()=>showScr('menu'));
+wire('char-panel-close',()=>document.getElementById('char-sheet').classList.remove('show'));
+wire('b-resume',()=>togglePause());
+wire('b-quit',()=>{G.playing=false;G.paused=false;menuActive=true;resetJoy();document.getElementById('pause-scr').style.display='none';if(document.pointerLockElement)document.exitPointerLock();buildMenuScene();showScr('menu');});
+wire('b-retry',()=>{document.getElementById('go-scr').style.display='none';startGame();});
+wire('b-menu-go',()=>{menuActive=true;buildMenuScene();showScr('menu');});
+wire('b-menu-vc',()=>{menuActive=true;buildMenuScene();showScr('menu');});
+wire('b-next',()=>{G.eraIdx=(G.eraIdx+1)%ERAS.length;G.era=ERAS[G.eraIdx];document.getElementById('vc-scr').style.display='none';openCharSheet(G.era);showScr('era-scr');});
+
+// Also prevent background sheet close on panel tap
+document.getElementById('char-panel').addEventListener('click',e=>e.stopPropagation());
+document.getElementById('char-panel').addEventListener('touchend',e=>e.stopPropagation(),{passive:false});
+document.getElementById('char-sheet').addEventListener('touchend',e=>{if(e.target===document.getElementById('char-sheet'))document.getElementById('char-sheet').classList.remove('show');},{passive:false});
+
+// ── RESIZE ────────────────────────────────────────────
+window.addEventListener('resize',()=>{cam.aspect=window.innerWidth/window.innerHeight;cam.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+
+// ── PREVENT SCROLL / ZOOM ─────────────────────────────
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+
+// ── RENDER LOOP ───────────────────────────────────────
+function loop(){
+  requestAnimationFrame(loop);
+  const dt=Math.min(clock.getDelta(),.05);
+  const t=clock.elapsedTime;
+  if(G.playing&&!G.paused){
+    updatePlayer(dt);updateEnemies(dt);updateWaves(dt);
+    updateCam();updateParts(dt);tickScene(t);drawMinimap();
+  } else if(menuActive){
+    menuT+=dt;
+    cam.position.x=Math.sin(menuT*.08)*3;cam.position.y=4+Math.sin(menuT*.05)*.5;cam.lookAt(0,1,-15);
+    tickScene(t);
+  }
+  renderer.render(scene,cam);
+}
+
+// ── INIT ─────────────────────────────────────────────
+clock.start();
+initTouch();
+buildMenuScene();
+loop();
+setTimeout(()=>{document.getElementById('loading').style.display='none';showScr('menu');},2200);
+</script>
+
+</body>
+</html>
