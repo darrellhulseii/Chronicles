@@ -354,62 +354,65 @@ animation:fU .75s ease forwards;z-index:200;font-size:1.1rem;}
 .ani{animation:ani .42s ease both;}
 
 /* ── QUEST / DIALOGUE SCREEN ─────────────────────────── */
-#qscr{position:absolute;inset:0;z-index:500;display:none;align-items:center;justify-content:center;}
-#qscr.show{display:flex;}
-#qbg{position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(3px);}
-#qpanel{position:relative;z-index:1;width:min(680px,96vw);max-height:92vh;overflow-y:auto;
-background:linear-gradient(170deg,rgba(18,13,8,.98),rgba(10,7,4,.99));
-border:1px solid rgba(160,120,64,.5);border-radius:4px;
-box-shadow:0 0 80px rgba(0,0,0,.9),inset 0 0 40px rgba(0,0,0,.4);
-padding:0 0 24px;}
-#qwave_banner{background:linear-gradient(90deg,transparent,rgba(160,120,64,.15),transparent);
-border-bottom:1px solid rgba(160,120,64,.3);
-padding:16px 28px;text-align:center;
-font-family:‘Cinzel’,serif;font-size:clamp(.65rem,2.2vw,.82rem);
-letter-spacing:.38em;color:var(–brz);text-transform:uppercase;}
-#qnpc_area{display:flex;align-items:center;gap:18px;padding:24px 28px 16px;}
-#qnpc_avatar{width:72px;height:72px;border-radius:50%;flex-shrink:0;
-background:linear-gradient(135deg,rgba(40,30,18,.9),rgba(20,14,8,.95));
-border:2px solid rgba(160,120,64,.5);
-display:flex;align-items:center;justify-content:center;
-font-size:2.2rem;box-shadow:0 0 20px rgba(212,168,67,.15);}
-#qnpc_name{font-family:‘Cinzel’,serif;font-size:clamp(1rem,3.5vw,1.3rem);
-color:var(–gld);font-weight:700;letter-spacing:.08em;margin-bottom:5px;line-height:1.2;}
-#qnpc_role{font-size:clamp(.64rem,2vw,.76rem);color:var(–brz);letter-spacing:.14em;
-text-transform:uppercase;line-height:1.4;}
-#qbubble{margin:4px 28px 0;padding:22px 26px;
-background:rgba(0,0,0,.45);
-border-left:3px solid rgba(212,168,67,.55);
-border-radius:0 4px 4px 0;position:relative;}
-#qbubble::before{content:‘❝’;position:absolute;top:-10px;left:18px;
-font-size:2.4rem;color:rgba(212,168,67,.22);line-height:1;}
-#qtext{font-family:‘Crimson Text’,serif;font-size:clamp(1rem,3.2vw,1.2rem);
-color:var(–parch);line-height:1.75;font-style:italic;letter-spacing:.01em;}
-#qsrc{margin-top:14px;font-size:clamp(.58rem,1.8vw,.68rem);color:var(–ash);
-letter-spacing:.08em;line-height:1.6;border-top:1px solid rgba(160,120,64,.15);
-padding-top:10px;}
-#qnav{display:flex;align-items:center;justify-content:space-between;
-padding:18px 28px 0;gap:12px;}
-#qprog{font-family:‘Cinzel’,serif;font-size:.58rem;color:var(–ash);
-letter-spacing:.2em;text-transform:uppercase;line-height:1.5;}
-#qnext{font-family:‘Cinzel’,serif;font-size:clamp(.72rem,2.5vw,.86rem);
+/* ── IN-WORLD QUEST SYSTEM ───────────────────────── */
+#qinteract{position:absolute;display:none;pointer-events:none;z-index:200;
+transform:translate(-50%,-100%);text-align:center;}
+#qi_name{display:block;font-family:‘Cinzel’,serif;font-size:.7rem;color:var(–gld);
+letter-spacing:.15em;text-shadow:0 1px 8px rgba(0,0,0,.9);margin-bottom:4px;white-space:nowrap;}
+#qi_key{display:block;font-family:‘Cinzel’,serif;font-size:.65rem;color:var(–parch);
+background:rgba(0,0,0,.75);border:1px solid rgba(212,168,67,.5);
+padding:3px 10px;border-radius:2px;animation:qpulse 1.4s infinite;}
+@keyframes qpulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+#qdialog{position:absolute;bottom:0;left:0;right:0;z-index:300;
+display:none;background:linear-gradient(0deg,rgba(6,4,2,.97),rgba(12,8,4,.94));
+border-top:1px solid rgba(160,120,64,.5);padding:0;
+animation:dlgUp .22s ease;}
+@keyframes dlgUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#qdialog.show{display:flex;flex-direction:column;}
+#qd_top{display:flex;align-items:center;gap:0;border-bottom:1px solid rgba(160,120,64,.2);}
+#qd_ava{width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+font-size:2rem;background:rgba(0,0,0,.4);border-right:1px solid rgba(160,120,64,.2);}
+#qd_who{padding:10px 16px;flex:1;}
+#qd_name{font-family:‘Cinzel’,serif;font-size:clamp(.82rem,2.8vw,.98rem);
+color:var(–gld);font-weight:700;letter-spacing:.06em;line-height:1.2;}
+#qd_role{font-size:clamp(.56rem,1.7vw,.66rem);color:var(–brz);
+letter-spacing:.14em;text-transform:uppercase;margin-top:2px;}
+#qd_npclist{display:flex;gap:0;border-right:1px solid rgba(160,120,64,.2);}
+.qd_chip{padding:6px 14px;display:flex;flex-direction:column;align-items:center;gap:3px;
+cursor:pointer;border-right:1px solid rgba(160,120,64,.15);touch-action:manipulation;
+transition:background .15s;min-width:52px;}
+.qd_chip:hover,.qd_chip.qac{background:rgba(160,120,64,.15);}
+.qd_chip.qtk .qd_tick{display:block;}
+.qd_ico{font-size:1.15rem;line-height:1;}
+.qd_tick{display:none;font-size:.55rem;color:var(–gld);}
+#qd_body{padding:14px 20px 10px;flex:1;}
+#qd_txt{font-family:‘Crimson Text’,serif;font-size:clamp(.95rem,3vw,1.12rem);
+color:var(–parch);line-height:1.7;font-style:italic;}
+#qd_src{font-size:clamp(.52rem,1.6vw,.62rem);color:var(–ash);margin-top:6px;line-height:1.55;}
+#qd_foot{display:flex;align-items:center;justify-content:space-between;
+padding:8px 20px 14px;border-top:1px solid rgba(160,120,64,.12);}
+#qd_hint{font-family:‘Cinzel’,serif;font-size:.56rem;color:var(–ash);letter-spacing:.18em;}
+#qd_cont{font-family:‘Cinzel’,serif;font-size:clamp(.66rem,2.2vw,.78rem);
 letter-spacing:.2em;color:var(–parch);background:transparent;
-border:1px solid rgba(160,120,64,.45);padding:12px 28px;
-text-transform:uppercase;cursor:pointer;touch-action:manipulation;
-min-height:48px;transition:all .18s;}
-#qnext:hover,#qnext:active{background:rgba(160,120,64,.18);color:var(–gld);
-border-color:var(–gld);}
-#qnpc_list{display:flex;gap:10px;flex-wrap:wrap;padding:14px 28px 0;
-border-top:1px solid rgba(160,120,64,.12);margin-top:16px;}
-.qnpc_chip{display:flex;align-items:center;gap:8px;padding:8px 14px;
-background:rgba(160,120,64,.08);border:1px solid rgba(160,120,64,.22);
-border-radius:2px;cursor:pointer;touch-action:manipulation;transition:all .15s;flex:1;min-width:140px;}
-.qnpc_chip:hover,.qnpc_chip.active{background:rgba(160,120,64,.2);border-color:var(–gld);}
-.qnpc_chip .chip_ico{font-size:1.3rem;}
-.qnpc_chip .chip_nm{font-family:‘Cinzel’,serif;font-size:.64rem;color:var(–parch);
-letter-spacing:.08em;line-height:1.4;}
-.qnpc_chip .chip_done{font-size:.7rem;color:var(–gld);margin-left:auto;display:none;}
-.qnpc_chip.done .chip_done{display:block;}
+border:1px solid rgba(160,120,64,.4);padding:10px 24px;
+text-transform:uppercase;cursor:pointer;touch-action:manipulation;min-height:44px;
+transition:all .15s;}
+#qd_cont:hover,#qd_cont:active{background:rgba(160,120,64,.2);color:var(–gld);}
+#qhud_hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+pointer-events:none;z-index:150;text-align:center;display:none;animation:fadInOut 3s forwards;}
+@keyframes fadInOut{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+#qhud_hint p{font-family:‘Cinzel’,serif;font-size:clamp(.7rem,2.6vw,.92rem);
+color:var(–gld);letter-spacing:.24em;text-shadow:0 0 20px rgba(0,0,0,.9);text-transform:uppercase;}
+#qhud_hint small{display:block;font-size:.58rem;color:var(–ash);margin-top:6px;letter-spacing:.15em;}
+#qtown_label{position:absolute;top:max(calc(var(–ist)+56px),60px);left:50%;transform:translateX(-50%);
+pointer-events:none;text-align:center;display:none;z-index:150;}
+#qtown_label h3{font-family:‘Cinzel Decorative’,serif;font-size:clamp(.9rem,3.5vw,1.4rem);
+color:var(–gld);letter-spacing:.28em;text-shadow:0 0 30px rgba(0,0,0,.95);}
+#qtown_label p{font-size:.6rem;color:var(–brz);letter-spacing:.26em;text-transform:uppercase;margin-top:3px;}
+#qsoldat_glow{position:absolute;display:none;pointer-events:none;z-index:160;
+transform:translate(-50%,-100%);font-family:‘Cinzel’,serif;font-size:.68rem;
+color:#ffdd44;letter-spacing:.14em;animation:qpulse 1.2s infinite;
+text-shadow:0 0 10px rgba(255,200,0,.8);}
 </style>
 
 </head>
@@ -1643,7 +1646,7 @@ let atkCool=0,dodgeT=0,dodgeCool=0,reloadT=0,reloading=false,shakeI=0;
 const dodgeDir=new THREE.Vector3();
 const mouse={locked:false};
 
-document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Escape'&&G.playing)pause();if(e.code==='Space')e.preventDefault();});
+document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE'&&questMode){interactWithNearestNpc();};if(e.code==='Escape'&&G.playing)pause();if(e.code==='Space')e.preventDefault();});
 document.addEventListener('keyup',e=>{keys[e.code]=false;});
 document.getElementById('cv').addEventListener('click',()=>{if(G.playing&&!G.paused&&!MOB)renderer.domElement.requestPointerLock();});
 document.addEventListener('pointerlockchange',()=>{mouse.locked=document.pointerLockElement===renderer.domElement;});
@@ -1664,7 +1667,7 @@ function initTouch(){
   cz.addEventListener('touchend',ec,{passive:false}); cz.addEventListener('touchcancel',ec,{passive:false});
   // BUTTONS
   function tb(el,fn){el.addEventListener('touchstart',e=>{e.preventDefault();el.classList.add('pr');fn();},{passive:false});const off=e=>{e.preventDefault();el.classList.remove('pr');};el.addEventListener('touchend',off,{passive:false});el.addEventListener('touchcancel',off,{passive:false});}
-  tb(atk,()=>{if(G.playing&&!G.paused&&playerG)attack();});
+  tb(atk,()=>{if(questMode){interactWithNearestNpc();}else if(G.playing&&!G.paused&&playerG)attack();});
   tb(dg,dodge);
   sp.addEventListener('touchstart',e=>{e.preventDefault();sp.classList.add('pr');tSprint=true;},{passive:false});
   const soff=e=>{e.preventDefault();sp.classList.remove('pr');tSprint=false;};
@@ -1720,7 +1723,8 @@ function updatePlayer(dt){
   }
   if(sprinting&&mov) G.stam=Math.max(0,G.stam-dt*22);
   else G.stam=Math.min(100,G.stam+dt*14);
-  if(keys['Space']){dodge();keys['Space']=false;}
+  if(keys['Space']){if(questMode){}else dodge();keys['Space']=false;}
+  if(keys['KeyE']){if(questMode)interactWithNearestNpc();keys['KeyE']=false;}
   if(dodgeT>0){dodgeT-=dt;pVel.addScaledVector(dodgeDir,13);mov=true;}
   const kb=playerG.userData.kb;
   if(kb&&kb.length()>.01){pVel.add(kb);kb.multiplyScalar(.78);}
@@ -2083,79 +2087,741 @@ function updateAllies(dt){
 // ══════════════════════════════════════════════════════
 //  QUEST / DIALOGUE ENGINE
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  QUEST TOWN BUILDER UTILITIES
+// ══════════════════════════════════════════════════════
+let qTownNpcs=[],qActiveNpc=null,qDialogNpcIdx=0,qDialogLineIdx=0,qNpcDone=[];
+let qSoldier=null, qAllTalked=false, qProximityNpc=null;
+
+function qBox(p,w,h,d,c,r,x,y,z,rx,ry,rz){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:r||.9,metalness:.05}));
+  if(x!==undefined)m.position.set(x,y||0,z||0);
+  if(rx!==undefined)m.rotation.set(rx,ry||0,rz||0);
+  p.add(m); return m;
+}
+function qCyl(p,rt,rb,h,seg,c,r,x,y,z){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),new THREE.MeshStandardMaterial({color:c,roughness:r||.9,metalness:.05}));
+  if(x!==undefined)m.position.set(x,y||0,z||0); p.add(m); return m;
+}
+function qTorch(x,y,z){
+  const g=new THREE.Group(); g.position.set(x,y,z); scene.add(g);
+  qCyl(g,.025,.03,.9,5,0x5a3010,.9, 0,.45,0);
+  qCyl(g,.04,.025,.18,6,0x2a1408,.7, 0,.95,0);
+  const fl=new THREE.PointLight(0xff8822,2.8,8);
+  fl.position.set(0,1.1,0); fl.userData.bi=2.8; fl.userData.fs=.2+Math.random()*.3;
+  g.add(fl);
+}
+function qFire(x,y,z){
+  const g=new THREE.Group(); g.position.set(x,y,z); scene.add(g);
+  for(let i=0;i<6;i++){
+    const s=.12+Math.random()*.22;
+    const log=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,.55,5),new THREE.MeshStandardMaterial({color:0x3a1a08,roughness:.95}));
+    log.rotation.set(Math.PI/2+(Math.random()-.5)*.6,(i/6)*Math.PI*2,0);
+    log.position.set(Math.cos((i/6)*Math.PI*2)*.2,0,Math.sin((i/6)*Math.PI*2)*.2);
+    g.add(log);
+  }
+  const fl=new THREE.PointLight(0xff6600,3.5,10);
+  fl.position.set(0,.8,0); fl.userData.bi=3.5; fl.userData.fs=.25+Math.random()*.4;
+  g.add(fl);
+}
+function qWall(x1,z1,x2,z2,h,c){
+  const dx=x2-x1,dz=z2-z1,len=Math.sqrt(dx*dx+dz*dz),angle=Math.atan2(dx,dz);
+  const m=new THREE.Mesh(new THREE.BoxGeometry(len,.5>h?h:h,.38),new THREE.MeshStandardMaterial({color:c,roughness:.95,metalness:.0}));
+  m.position.set((x1+x2)/2,h/2,(z1+z2)/2); m.rotation.y=angle; scene.add(m);
+}
+function qHouse(cx,cz,w,d,h,wallC,roofC,ry){
+  const g=new THREE.Group(); g.position.set(cx,0,cz); if(ry)g.rotation.y=ry; scene.add(g);
+  // Walls
+  qBox(g,w,h,d,wallC,.95, 0,h/2,0);
+  // Roof (pitched)
+  const ridgeH=w*.38;
+  const roofG=new THREE.ConeGeometry(Math.sqrt((w/2)*(w/2)+(d/2)*(d/2))*1.05,ridgeH,4);
+  roofG.rotateY(Math.PI/4);
+  const roof=new THREE.Mesh(roofG,new THREE.MeshStandardMaterial({color:roofC,roughness:.92}));
+  roof.position.set(0,h+ridgeH/2,0); g.add(roof);
+  // Door
+  qBox(g,.55,1.1,.06,0x2a1408,.9, 0,.55,d/2+.01);
+  return g;
+}
+function qTent(cx,cz,ry,w,d,c){
+  const g=new THREE.Group(); g.position.set(cx,0,cz); if(ry)g.rotation.y=ry; scene.add(g);
+  qBox(g,w,.8,d,c,.9, 0,.4,0);
+  const roofG=new THREE.ConeGeometry(Math.sqrt((w/2)*(w/2)+(d/2)*(d/2))*.9,.9,4);
+  roofG.rotateY(Math.PI/4);
+  const roof=new THREE.Mesh(roofG,new THREE.MeshStandardMaterial({color:new THREE.Color(c).multiplyScalar(.7),roughness:.95}));
+  roof.position.y=1.25; g.add(roof);
+}
+function qSandbagRow(x,z,len,ry){
+  const g=new THREE.Group(); g.position.set(x,.1,z); g.rotation.y=ry||0; scene.add(g);
+  for(let i=0;i<Math.ceil(len/.55);i++){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.48,.32,.38),new THREE.MeshStandardMaterial({color:0x7a7048,roughness:.99}));
+    b.position.set((i-(Math.ceil(len/.55)-1)/2)*.52,.0,0);
+    b.rotation.y=(Math.random()-.5)*.15; g.add(b);
+  }
+}
+function qCrater(x,z,r){
+  // Crater ring using torus
+  const cr=new THREE.Mesh(new THREE.TorusGeometry(r,.28,5,14),new THREE.MeshStandardMaterial({color:0x2a2014,roughness:1}));
+  cr.rotation.x=Math.PI/2; cr.position.set(x,-.1,z); scene.add(cr);
+}
+
+// ── ERA TOWN BUILDERS ─────────────────────────────────
+function buildRomanCastra(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x3a2808);
+  scene.fog=new THREE.FogExp2(0x302010,.022);
+  scene.add(new THREE.AmbientLight(0x403020,2.0));
+  const sun=new THREE.DirectionalLight(0xffd060,2.2); sun.position.set(20,50,-30); scene.add(sun);
+  // Ground — packed earth
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x4a3818,roughness:.98}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Via principalis (main road) — stone slabs
+  const road=new THREE.Mesh(new THREE.BoxGeometry(4,0.02,60),new THREE.MeshStandardMaterial({color:0x6a5c40,roughness:.85}));
+  road.rotation.x=0; road.position.set(0,.01,0); scene.add(road);
+  const road2=new THREE.Mesh(new THREE.BoxGeometry(60,0.02,4),new THREE.MeshStandardMaterial({color:0x6a5c40,roughness:.85}));
+  road2.position.set(0,.01,0); scene.add(road2);
+  // Palisade walls (square camp perimeter ~36x36)
+  [[0,18,0,-18,3.2],[36/2,18,-36/2,18,3.2],[-36/2,18,-36/2,-18,3.2],[0,-18,0,18,3.2]].forEach(()=>{});
+  for(let i=0;i<36;i++){
+    const ang=(i/36)*Math.PI*2, r=26;
+    const post=new THREE.Mesh(new THREE.BoxGeometry(.35,.35,3.8),new THREE.MeshStandardMaterial({color:0x4a3010,roughness:.95}));
+    post.position.set(Math.cos(ang)*r,1.9,Math.sin(ang)*r); scene.add(post);
+  }
+  qWall(-26,-26, 26,-26, 3.2, 0x3a2808);
+  qWall( 26,-26, 26, 26, 3.2, 0x3a2808);
+  qWall( 26, 26,-26, 26, 3.2, 0x3a2808);
+  qWall(-26, 26,-26,-26, 3.2, 0x3a2808);
+  // Praetorium — large command tent center
+  qTent(0,0,0, 6,5, 0x9a3010);
+  // Tent rows (legionary quarters)
+  [-8,-14,-20].forEach(xoff=>{
+    [-14,-9,-4,4,9,14].forEach(z=>{
+      qTent(xoff,z,Math.PI/2, 2.4,3.6, 0x7a3018);
+    });
+    [-14,-9,-4,4,9,14].forEach(z=>{
+      qTent(-xoff,z,Math.PI/2, 2.4,3.6, 0x7a3018);
+    });
+  });
+  // Roman standards (aquila)
+  [[4,0],[8,0],[-4,0],[-8,0],[0,4],[0,-4]].forEach(([x,z])=>{
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,3.5,5),new THREE.MeshStandardMaterial({color:0xc8a030,metalness:.6,roughness:.3}));
+    pole.position.set(x,1.75,z); scene.add(pole);
+    const eagle=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.1),new THREE.MeshStandardMaterial({color:0xd4a820,metalness:.8,roughness:.2}));
+    eagle.position.set(x,3.6,z); scene.add(eagle);
+  });
+  // Torches around praetorium
+  [[-3.5,3.5],[3.5,3.5],[3.5,-3.5],[-3.5,-3.5],[-3.5,0],[3.5,0],[0,3.5],[0,-3.5]].forEach(([x,z])=>qTorch(x,0,z));
+  // Ballistae
+  [[20,0,0],[-20,0,0],[0,0,20],[0,0,-20]].forEach(([x,y,z])=>{
+    const b=new THREE.Mesh(new THREE.BoxGeometry(1.5,.7,2.2),new THREE.MeshStandardMaterial({color:0x4a3010,roughness:.9}));
+    b.position.set(x,0.35,z); scene.add(b);
+  });
+  // Camp fires
+  [[-10,8],[10,-8],[10,8],[-10,-8],[-16,0],[16,0]].forEach(([x,z])=>qFire(x,0,z));
+  // Register obstacles for NPC clearance
+  regObs(0,0, 4,3);            // praetorium tent
+  // Tent rows x=±8,±14,±20 at z=±4,±9,±14
+  [-8,-14,-20].forEach(xoff=>{
+    [-14,-9,-4,4,9,14].forEach(z=>{
+      regObs( xoff,z, 1.4,2.0); regObs(-xoff,z, 1.4,2.0);
+    });
+  });
+  // Standards/poles
+  [[4,0],[8,0],[-4,0],[-8,0],[0,4],[0,-4]].forEach(([x,z])=>regObs(x,z,.4,.4));
+  // Ballistae
+  [[20,0],[-20,0],[0,20],[0,-20]].forEach(([x,z])=>regObs(x,z,1.2,1.5));
+  // Palisade wall boundary (keep NPCs 2u inside)
+  for(let i=0;i<36;i++){const a=(i/36)*Math.PI*2;regObs(Math.cos(a)*26,Math.sin(a)*26,1,1);}
+}
+
+function buildCrusaderCamp(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x5a4020);
+  scene.fog=new THREE.FogExp2(0x503818,.020);
+  scene.add(new THREE.AmbientLight(0x504030,1.8));
+  const sun=new THREE.DirectionalLight(0xffe080,2.4); sun.position.set(30,60,-20); scene.add(sun);
+  // Dry ground
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x806040,roughness:.99}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Jerusalem wall silhouette in background
+  [[-18,28],[-8,28],[2,28],[12,28],[22,28]].forEach(([x,z])=>{
+    const tower=new THREE.Mesh(new THREE.BoxGeometry(3.5,7+Math.random()*4,.6),new THREE.MeshStandardMaterial({color:0x9a8060,roughness:.95}));
+    tower.position.set(x,tower.geometry.parameters.height/2,z); scene.add(tower);
+    const merlon=new THREE.Mesh(new THREE.BoxGeometry(1,1.2,.7),new THREE.MeshStandardMaterial({color:0x9a8060,roughness:.95}));
+    merlon.position.set(x,tower.geometry.parameters.height+.6,z); scene.add(merlon);
+  });
+  const citywall=new THREE.Mesh(new THREE.BoxGeometry(44,5.5,.5),new THREE.MeshStandardMaterial({color:0x8a7050,roughness:.96}));
+  citywall.position.set(2,2.75,28); scene.add(citywall);
+  // Large chapel tent (chapel of the Crusade)
+  qTent(0,4,0, 7,10, 0xd8d0b0);
+  const cross1=new THREE.Mesh(new THREE.BoxGeometry(.22,3,.22),new THREE.MeshStandardMaterial({color:0xd4a020,metalness:.6,roughness:.3}));
+  cross1.position.set(0,5.5,4.05); scene.add(cross1);
+  const cross2=new THREE.Mesh(new THREE.BoxGeometry(1.4,.22,.22),new THREE.MeshStandardMaterial({color:0xd4a020,metalness:.6,roughness:.3}));
+  cross2.position.set(0,5.0,4.05); scene.add(cross2);
+  // Crusader tents
+  [[-10,0],[-10,8],[-10,-8],[10,0],[10,8],[10,-8],[0,-10],[0,-16]].forEach(([x,z],i)=>{
+    qTent(x,z,i*.4, 3.2,4.4, i%2?0x8a7858:0xb0a888);
+  });
+  // Supply wagons
+  [[14,-4],[-14,-4],[14,-12],[-14,12]].forEach(([x,z])=>{
+    const wag=new THREE.Mesh(new THREE.BoxGeometry(2.4,.7,1.2),new THREE.MeshStandardMaterial({color:0x5a4020,roughness:.9}));
+    wag.position.set(x,.35,z); scene.add(wag);
+    for(let wx=-1;wx<=1;wx+=2){
+      const w=new THREE.Mesh(new THREE.TorusGeometry(.38,.06,6,14),new THREE.MeshStandardMaterial({color:0x3a2010,roughness:.9}));
+      w.rotation.y=Math.PI/2; w.position.set(x+wx*.62,.38,z); scene.add(w);
+    }
+  });
+  // Camp fires
+  [[-6,1],[6,1],[-6,-6],[6,-6],[0,10],[-12,-2],[12,-2]].forEach(([x,z])=>qFire(x,0,z));
+  // Torches at chapel
+  [[-4,9],[4,9],[-4,-1],[4,-1]].forEach(([x,z])=>qTorch(x,0,z));
+  // Register obstacles
+  regObs(0,4, 4,6);            // chapel tent (7w×10d half=3.5,5 + 0.5 extra)
+  [[-10,0],[-10,8],[-10,-8],[10,0],[10,8],[10,-8],[0,-10],[0,-16]].forEach(([x,z])=>regObs(x,z,2.0,2.6)); // tents
+  [[14,-4],[-14,-4],[14,-12],[-14,12]].forEach(([x,z])=>regObs(x,z,1.8,1.0)); // wagons
+  // Jerusalem wall silhouette (z=28) — far background, NPCs won't reach
+}
+
+function buildAgincourtBivouac(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x0a0c0e);
+  scene.fog=new THREE.FogExp2(0x080a0c,.025);
+  scene.add(new THREE.AmbientLight(0x101418,1.2));
+  const moon=new THREE.DirectionalLight(0x9ab0c0,.9); moon.position.set(-20,60,10); scene.add(moon);
+  // Wet muddy field
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100,24,24),new THREE.MeshStandardMaterial({color:0x2a2218,roughness:1,metalness:.02}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Mud bumps
+  for(let i=0;i<40;i++){
+    const a=Math.random()*Math.PI*2,d=3+Math.random()*22;
+    const bump=new THREE.Mesh(new THREE.SphereGeometry(.3+Math.random()*.5,5,4),new THREE.MeshStandardMaterial({color:0x1e1810,roughness:1}));
+    bump.scale.y=.25; bump.position.set(Math.cos(a)*d,0,Math.sin(a)*d); scene.add(bump);
+  }
+  // October trees — bare branches
+  [[20,8],[18,-12],[-18,14],[-22,-8],[25,0],[-26,2]].forEach(([x,z])=>{
+    qCyl(scene,.16,.22,3.5,6,0x1a1208,.9, x,1.75,z);
+    for(let b=0;b<6;b++){
+      const ang=b/6*Math.PI*2, bl=1.2+Math.random()*.8;
+      const branch=new THREE.Mesh(new THREE.CylinderGeometry(.04,.06,bl,4),new THREE.MeshStandardMaterial({color:0x1a1208,roughness:.98}));
+      branch.position.set(x+Math.cos(ang)*bl*.5,3.2+Math.random()*.6,z+Math.sin(ang)*bl*.5);
+      branch.rotation.z=Math.PI/2-.5+Math.random()*.4; branch.rotation.y=ang; scene.add(branch);
+    }
+  });
+  // Small camp fires (night before Agincourt — English lit fires)
+  [[-6,0],[6,0],[0,4],[0,-6],[-8,-6],[8,6],[-4,8],[4,-8]].forEach(([x,z])=>qFire(x,0,z));
+  // Sleeping soldiers — simple horizontal bundles
+  for(let i=0;i<18;i++){
+    const a=Math.random()*Math.PI*2,d=4+Math.random()*16;
+    if(d<3)return;
+    const bod=new THREE.Mesh(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(.2,.9,4,8) : new THREE.BoxGeometry(.4,.3,1.2),new THREE.MeshStandardMaterial({color:0x3a3028,roughness:.98}));
+    bod.position.set(Math.cos(a)*d,.15,Math.sin(a)*d); bod.rotation.y=Math.random()*Math.PI*2; scene.add(bod);
+  }
+  // Stacked longbows against a tree
+  [[-1.5,0],[-.5,0],[.5,0],[1.5,0]].forEach(([x,z])=>{
+    const bow=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1.7,5),new THREE.MeshStandardMaterial({color:0x5a4010,roughness:.9}));
+    bow.position.set(x+18,0.85,z-12); bow.rotation.z=.2; scene.add(bow);
+  });
+  // Equipment piles
+  [[8,10],[-10,8]].forEach(([x,z])=>{
+    const pile=new THREE.Mesh(new THREE.BoxGeometry(1.5,.5,1),new THREE.MeshStandardMaterial({color:0x3a3020,roughness:.98}));
+    pile.position.set(x,.25,z); scene.add(pile);
+  });
+  // Register obstacles
+  [[20,8],[18,-12],[-18,14],[-22,-8],[25,0],[-26,2]].forEach(([x,z])=>regObs(x,z,2.5,2.5)); // trees+branches
+  [[-6,0],[6,0],[0,4],[0,-6],[-8,-6],[8,6],[-4,8],[4,-8]].forEach(([x,z])=>regObs(x,z,1.5,1.5)); // fires
+  [[8,10],[-10,8]].forEach(([x,z])=>regObs(x,z,1.2,.8)); // equipment piles
+}
+
+function buildWaterlooFarm(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x8090a0);
+  scene.fog=new THREE.FogExp2(0x7080A0,.018);
+  scene.add(new THREE.AmbientLight(0x909090,1.6));
+  const sun=new THREE.DirectionalLight(0xfff0d0,2.0); sun.position.set(40,70,-20); scene.add(sun);
+  // Belgian farmland
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x506030,roughness:.97}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Hougoumont-style farmhouse
+  qHouse(-8,4, 8,6,4.5, 0x909080, 0x503820, Math.PI*.1);
+  qHouse(6,-5, 6,4.8,4.2, 0x888070, 0x604030, -Math.PI*.05);
+  // Barn
+  qHouse(4,8, 10,6,5, 0x706050, 0x402810, Math.PI*.15);
+  // Stone walls / hedgerows
+  qWall(-16,-8, 16,-8, 1.2, 0x606048);
+  qWall(-16,-8,-16, 12, 1.2, 0x606048);
+  qWall(16,-8, 16, 12, 1.2, 0x606048);
+  // Hedge texture (dark green lumps)
+  for(let i=0;i<30;i++){
+    const hx=-14+i*1.0, lump=new THREE.Mesh(new THREE.DodecahedronGeometry(.6+Math.random()*.3,0),new THREE.MeshStandardMaterial({color:0x2a3810,roughness:1}));
+    lump.position.set(hx,.4,-8); lump.scale.set(1,.6,1); scene.add(lump);
+  }
+  // Cannon positions
+  [[-12,8,0],[12,8,Math.PI]].forEach(([x,z,ry])=>{
+    const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,2.0,8),new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:.6,metalness:.4}));
+    barrel.rotation.z=Math.PI/2; barrel.position.set(x,.6,z); barrel.rotation.y=ry; scene.add(barrel);
+    const carriage=new THREE.Mesh(new THREE.BoxGeometry(1.8,.6,1),new THREE.MeshStandardMaterial({color:0x4a3010,roughness:.9}));
+    carriage.position.set(x,.3,z); scene.add(carriage);
+    for(let wi=0;wi<2;wi++){
+      const wh=new THREE.Mesh(new THREE.TorusGeometry(.44,.06,7,16),new THREE.MeshStandardMaterial({color:0x3a2010,roughness:.9}));
+      wh.rotation.y=Math.PI/2; wh.position.set(x+(wi?-.55:.55),.42,z); scene.add(wh);
+    }
+  });
+  // Supply wagons, barrels, ammunition boxes
+  [[0,12],[6,12],[-6,12]].forEach(([x,z])=>{
+    const box=new THREE.Mesh(new THREE.BoxGeometry(.7,.65,.7),new THREE.MeshStandardMaterial({color:0x5a4010,roughness:.9}));
+    box.position.set(x,.325,z); scene.add(box);
+  });
+  qFire(-2,0,0); qFire(10,0,6); qFire(-10,0,6);
+  // Register obstacles
+  regObs(-8,4,  5,3.5);        // farmhouse1 (8w×6d)
+  regObs( 6,-5, 4,3);          // farmhouse2 (6w×4.8d)
+  regObs( 4, 8, 6,3.5);        // barn (10w×6d)
+  // Stone walls: z=-8 runs x-16..16; x=±16 runs z=-8..12
+  for(let wx=-15;wx<=15;wx+=2) regObs(wx,-8,1.2,.5);  // south hedge wall
+  for(let wz=-7;wz<=11;wz+=2){ regObs(-16,wz,.5,1.2); regObs(16,wz,.5,1.2); } // side walls
+  [[-12,8],[12,8]].forEach(([x,z])=>regObs(x,z,1.5,1.5)); // cannon positions
+  [[-2,0],[10,6],[-10,6]].forEach(([x,z])=>regObs(x,z,1.2,1.2)); // fires
+}
+
+function buildSommeTrench(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x181814);
+  scene.fog=new THREE.FogExp2(0x181210,.028);
+  scene.add(new THREE.AmbientLight(0x202018,1.4));
+  const sun=new THREE.DirectionalLight(0x808070,.8); sun.position.set(-20,40,10); scene.add(sun);
+  // Mud
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x1a1810,roughness:1}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Main trench — dug-in floor path (lower ground)
+  const trench=new THREE.Mesh(new THREE.BoxGeometry(3,1.8,40),new THREE.MeshStandardMaterial({color:0x141210,roughness:1}));
+  trench.position.set(0,-.9,0); scene.add(trench);
+  // Duckboards
+  for(let z=-18;z<18;z+=1.1){
+    const board=new THREE.Mesh(new THREE.BoxGeometry(1.8,.08,1.0),new THREE.MeshStandardMaterial({color:0x3a2a10,roughness:.95}));
+    board.position.set(0,-.95,z); scene.add(board);
+  }
+  // Sandbag walls lining the trench
+  [[-2.2,-20, 40,0],[2.2,-20, 40,0]].forEach(([x,z,len,ry])=>qSandbagRow(x,z,len,ry));
+  for(let z=-18;z<18;z+=1.6) qSandbagRow(-2.2,z,.5,0), qSandbagRow(2.2,z,.5,0);
+  // Dugout entrances (side rooms)
+  [[-6,-10,-.5],[-6,0,-.5],[-6,10,-.5],[6,-10,.5],[6,0,.5],[6,10,.5]].forEach(([x,z,rot])=>{
+    qSandbagRow(x,z,3.5,rot*Math.PI);
+    const dframe=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.6,.2),new THREE.MeshStandardMaterial({color:0x4a3010,roughness:.95}));
+    dframe.position.set(x,-.1,z); scene.add(dframe);
+  });
+  // Shell craters
+  [[-15,4,-18,-8],[15,-6,-20,12],[14,18,-12,-14]].forEach(([...coords])=>{
+    for(let i=0;i<coords.length;i+=2) qCrater(coords[i],coords[i+1],.8+Math.random()*.8);
+  });
+  // Barbed wire coils
+  for(let i=0;i<20;i++){
+    const a=Math.random()*Math.PI*2,d=8+Math.random()*18;
+    const bw=new THREE.Mesh(new THREE.TorusGeometry(.35+Math.random()*.25,.04,5,12),new THREE.MeshStandardMaterial({color:0x383020,roughness:.7,metalness:.3}));
+    bw.rotation.set(Math.random(),Math.random()*Math.PI,Math.random());
+    bw.position.set(Math.cos(a)*d,.1,Math.sin(a)*d); scene.add(bw);
+  }
+  // Lanterns in trench
+  [0,-6,6,-12,12].forEach(z=>qTorch(0,0,z));
+  // Supply crates
+  [[-8,-2],[-8,6],[8,-2],[8,6]].forEach(([x,z])=>{
+    const cr=new THREE.Mesh(new THREE.BoxGeometry(.8,.7,.7),new THREE.MeshStandardMaterial({color:0x3a3020,roughness:.9}));
+    cr.position.set(x,.35,z); scene.add(cr);
+  });
+  // Register obstacles
+  regObs(0, 0, 2.2, 22);       // trench channel (full length)
+  [[-6,-10],[-6,0],[-6,10],[6,-10],[6,0],[6,10]].forEach(([x,z])=>regObs(x,z,2.0,1.2)); // dugout frames
+  [[-8,-2],[-8,6],[8,-2],[8,6]].forEach(([x,z])=>regObs(x,z,.8,.8)); // crates
+  [[-2.2,0],[2.2,0]].forEach(([x,z])=>regObs(x,z,.6,22)); // sandbag walls
+}
+
+function buildDDayVillage(){
+  townObstacles=[];
+  scene.background=new THREE.Color(0x7090a0);
+  scene.fog=new THREE.FogExp2(0x6080A0,.015);
+  scene.add(new THREE.AmbientLight(0x808890,1.7));
+  const sun=new THREE.DirectionalLight(0xfff5e0,2.2); sun.position.set(50,80,20); scene.add(sun);
+  // Normandy ground
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x3a5020,roughness:.97}));
+  tg.rotation.x=-Math.PI/2; scene.add(tg);
+  // Norman stone farmhouse (main)
+  qHouse(0,4, 9,6,5.5, 0x8a8878, 0x604840, 0);
+  // Smaller outbuilding
+  qHouse(-10,2, 5,4,3.8, 0x7a7868, 0x504030, .1);
+  qHouse(10,-4, 4,3.5,3.2, 0x7a7868, 0x504030, -.15);
+  // Church ruin
+  const ch=new THREE.Mesh(new THREE.BoxGeometry(5,6.5,8),new THREE.MeshStandardMaterial({color:0x9a9080,roughness:.95}));
+  ch.position.set(-8,3.25,10); scene.add(ch);
+  const steeple=new THREE.Mesh(new THREE.CylinderGeometry(.1,.6,3.5,4),new THREE.MeshStandardMaterial({color:0x808070,roughness:.9}));
+  steeple.position.set(-8,8.5,8); scene.add(steeple);
+  // Bocage hedgerows
+  [[-14,-14,0],[14,-14,Math.PI]].forEach(([x,z,ry])=>{
+    for(let i=-8;i<=8;i++){
+      const b=new THREE.Mesh(new THREE.BoxGeometry(.7,1.6+Math.random()*.4,.9),new THREE.MeshStandardMaterial({color:0x1e3010,roughness:1}));
+      b.position.set(x,0.8,z+i*1.05); b.rotation.y=ry+Math.random()*.15; scene.add(b);
+    }
+  });
+  // Sherman tank (simplified)
+  const hull=new THREE.Mesh(new THREE.BoxGeometry(3,1.2,5),new THREE.MeshStandardMaterial({color:0x3a4820,roughness:.8,metalness:.2}));
+  hull.position.set(14,0.6,-8); scene.add(hull);
+  const turret=new THREE.Mesh(new THREE.BoxGeometry(2,1,2.6),new THREE.MeshStandardMaterial({color:0x384018,roughness:.8,metalness:.2}));
+  turret.position.set(14,1.7,-8); scene.add(turret);
+  const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.1,.12,3.5,7),new THREE.MeshStandardMaterial({color:0x2a2a20,roughness:.6,metalness:.4}));
+  barrel.rotation.z=Math.PI/2; barrel.position.set(16.3,1.8,-8); scene.add(barrel);
+  // Supply depot crates/stacks
+  [[-4,-6],[-4,-2],[0,-6],[4,-6]].forEach(([x,z])=>{
+    const h=.65+Math.floor(Math.random()*3)*.65;
+    const cr=new THREE.Mesh(new THREE.BoxGeometry(.8,h,.8),new THREE.MeshStandardMaterial({color:0x5a5030,roughness:.9}));
+    cr.position.set(x,h/2,z); scene.add(cr);
+  });
+  // Beach obstacles in far background
+  for(let i=0;i<10;i++){
+    const bx=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,1.4),new THREE.MeshStandardMaterial({color:0x4a4030,roughness:.8,metalness:.3}));
+    bx.position.set(-20+i*4,-0.1,24); bx.rotation.y=Math.random()*.8-.4; scene.add(bx);
+  }
+  qFire(-2,0,2); qFire(6,0,-2); qFire(-10,0,4);
+  // Register obstacles
+  regObs(  0, 4, 5.5,3.5);     // main farmhouse (9w×6d)
+  regObs(-10, 2, 3.0,2.2);     // outbuilding1 (5w×4d)
+  regObs( 10,-4, 2.5,2.0);     // outbuilding2 (4w×3.5d)
+  regObs( -8,10, 3.0,4.5);     // church ruin (5w×8d)
+  regObs( 14,-8, 2.5,3.0);     // Sherman tank
+  // Bocage hedgerows x=±14 z=-14
+  for(let wz=-8;wz<=8;wz+=1.5){ regObs(-14,wz+(-14),1.0,.8); regObs(14,wz+(-14),1.0,.8); }
+  [[-2,2],[6,-2],[-10,4]].forEach(([x,z])=>regObs(x,z,1.2,1.2)); // fires
+}
+
+const TOWN_BUILDERS={
+  rome:buildRomanCastra,crusades:buildCrusaderCamp,agincourt:buildAgincourtBivouac,
+  waterloo:buildWaterlooFarm,somme:buildSommeTrench,dday:buildDDayVillage
+};
+const TOWN_LABELS={
+  rome:{title:'ROMAN CASTRA',sub:'Military Camp · 52 BC'},
+  crusades:{title:'CRUSADER CAMP',sub:'Before the Holy Sepulchre · 1099 AD'},
+  agincourt:{title:'ENGLISH BIVOUAC',sub:'Eve of Battle · 25 October 1415'},
+  waterloo:{title:'HOUGOUMONT FARM',sub:'Belgian Countryside · 18 June 1815'},
+  somme:{title:'BRITISH TRENCH SYSTEM',sub:'The Somme · 1 July 1916'},
+  dday:{title:'NORMANDY VILLAGE',sub:'Occupied France · 6 June 1944'}
+};
+
+
+// ══════════════════════════════════════════════════════
+//  OBSTACLE REGISTRY — populated by each town builder
+//  Each entry: {x, z, rx, rz}  (axis-aligned half-extents)
+// ══════════════════════════════════════════════════════
+let townObstacles = [];
+
+function regObs(cx, cz, halfW, halfD) {
+  // Register an AABB obstacle (world-space centre + half-extents, with 0.8u margin)
+  const m = 0.8;
+  townObstacles.push({ x: cx, z: cz, rx: halfW + m, rz: halfD + m });
+}
+
+function posIsClear(x, z) {
+  for (const o of townObstacles) {
+    if (Math.abs(x - o.x) < o.rx && Math.abs(z - o.z) < o.rz) return false;
+  }
+  return true;
+}
+
+// Find a clear point near (wx, wz) by spiral search
+function findClearPos(wx, wz) {
+  if (posIsClear(wx, wz)) return { x: wx, z: wz };
+  const step = 0.7;
+  for (let r = step; r < 12; r += step) {
+    const steps = Math.ceil((2 * Math.PI * r) / step);
+    for (let i = 0; i < steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const tx = wx + Math.cos(a) * r;
+      const tz = wz + Math.sin(a) * r;
+      if (posIsClear(tx, tz)) return { x: tx, z: tz };
+    }
+  }
+  return { x: wx, z: wz }; // fallback
+}
+
+// ── NPC PLACEMENT ─────────────────────────────────────
+function placeQuestNPC(npcDef, x, z, ry, isSoldier){
+  const safe = findClearPos(x, z); x = safe.x; z = safe.z;
+  const g=new THREE.Group(); scene.add(g);
+  const skinC=0xd0a870, clothC=isSoldier?0x506040:(npcDef.emoji==='🦅'?0x8a2010:npcDef.emoji==='📜'?0x706048:npcDef.emoji==='⚔️'||npcDef.emoji==='🪖'?0x4a5838:npcDef.emoji==='⭐'?0x3a4870:0x504838);
+  // Body
+  const bx2=(p,w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.88,metalness:.05}));m.position.set(x||0,y||0,z||0);p.add(m);return m;};
+  bx2(g,.48,.62,.32,clothC, 0,1.08,0);
+  const head=bx2(g,.32,.28,.30,skinC, 0,1.65,0);
+  // Hat/helmet based on emoji
+  if(isSoldier||npcDef.emoji==='⚔️'||npcDef.emoji==='🪖'||npcDef.emoji==='⭐'||npcDef.emoji==='🎖️'){
+    bx2(head,.36,.14,.34,0x404840, 0,.14,0); // helmet
+  } else if(npcDef.emoji==='👑'){
+    bx2(head,.34,.12,.32,0xd4a820, 0,.16,0); // crown
+    bx2(head,.08,.18,.08,0xd4a820, -.12,.24,0); bx2(head,.08,.18,.08,0xd4a820, 0,.26,0); bx2(head,.08,.18,.08,0xd4a820, .12,.24,0);
+  } else if(npcDef.emoji==='📜'||npcDef.emoji==='📖'||npcDef.emoji==='✍️'){
+    // Scribe hat (wide brim)
+    bx2(head,.44,.06,.44,0x2a1808, 0,.18,0);
+    bx2(head,.28,.16,.26,0x2a1808, 0,.28,0);
+    // Scroll in hand
+    const scroll=bx2(g,.08,.5,.08,0xd8c890, .28,.95,.12);
+  } else if(npcDef.emoji==='✝️'){
+    // Bishop mitre
+    bx2(head,.28,.24,.20,0xf0f0e0, 0,.22,0);
+  } else if(npcDef.emoji==='🎩'){
+    // Top hat
+    bx2(head,.36,.06,.36,0x101010, 0,.16,0);
+    bx2(head,.24,.22,.24,0x101010, 0,.3,0);
+  }
+  const lArm=bx2(g,.18,.55,.18,clothC, -.34,.96,0);
+  const rArm=bx2(g,.18,.55,.18,clothC, .34,.96,0);
+  bx2(g,.20,.48,.20,clothC==='#'?0x303030:0x303030, -.12,.14,0);
+  bx2(g,.20,.48,.20,clothC==='#'?0x303030:0x303030,  .12,.14,0);
+  // Idle gentle sway animation data
+  g.position.set(x,tH(x/10,z/10),z); g.rotation.y=ry||0;
+  g.userData={qnpc:true,npcDef,isSoldier,lArm,rArm,head,talked:false,ry:ry||0};
+  // Glow ring for soldier
+  if(isSoldier){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.7,.06,8,24),new THREE.MeshBasicMaterial({color:0xffdd44}));
+    ring.rotation.x=Math.PI/2; ring.position.y=.02; g.add(ring);
+    g.userData.ring=ring;
+  }
+  qTownNpcs.push(g); return g;
+}
+
+function placeQuestNpcsForWave(era, waveIdx){
+  qTownNpcs=[]; qActiveNpc=null; qDialogNpcIdx=0; qDialogLineIdx=0; qNpcDone=[];
+  const npcs=QUESTS[era.id]&&QUESTS[era.id][waveIdx]||[];
+  // NPC positions per era — spread around camp/town center
+  // NPC positions chosen to be in open areas — verified against each town's obstacle layout
+  const NPC_POSITIONS={
+    // Rome: open lanes between x=+8 and x=+14 tent columns (east alley x=11),
+    //       and x=-8 to x=-14 (west alley x=-11); north open ground z=17.
+    //       Avoiding praetorium tent (0,0 ±3), standards (±4,0)(±8,0), road z=0±2, x=0±2
+    rome:    [{x: 11,z: 6, ry:-1.4},  // east alley — clear of tents & standards
+              {x:-11,z: 6, ry: 1.4},  // west alley — clear mirror
+              {x:  0,z: 17,ry: 0.0}], // north open ground past last tent row
+    // Crusades: open ground north of camp (z=13), clear east open area,
+    //           avoiding chapel tent (0,4±5), outer tents (±10,0)(±10,±8)
+    crusades:[{x: -6,z:-5, ry: 0.8},  // south-west open area, clear of all tents
+              {x:  6,z:-5, ry:-0.8},  // south-east mirror, clear
+              {x:  0,z: 13,ry: 0.1}], // north open ground between chapel & walls
+    // Agincourt: dark field — avoid fires (radius ~1.5) and trees (radius ~3 including branches)
+    //            fires at (0,±6)(±6,0)(±8,±6)(±4,±8) — NPCs at least 3 from each
+    agincourt:[{x:-12,z:-5, ry: 0.6}, // clear of all fires and trees
+               {x: 12,z: 4, ry:-0.7}, // east open ground, clear of tree at (20,8)
+               {x:  2,z:-14,ry: 0.1}],// south open ground, clear of fire at (0,-6)
+    // Waterloo: farmhouse1 x:-12–-4 z:1–7; farmhouse2 x:3–9 z:-7–-3; barn x:-1–9 z:5–11
+    //           walls at z=-8, x=±16; cannon at (±12,8)
+    waterloo:[{x:-14,z: 0, ry: 0.8},  // west of farmhouse1, outside wall, clear
+              {x: 12,z: 1, ry:-1.2},  // east gap between farmhouse2 end & east wall
+              {x: -2,z:-4, ry: 0.2}], // centre open area south of farmhouses, north of z=-8 wall
+    // Somme: trench x:-1.5–1.5; sandbags x=±2.2; dugout frames x=±6 z=-10,0,+10
+    //        supply crates (±8,-2)(±8,6) — stand in open bays between dugouts
+    somme:   [{x:-9, z: 4, ry: 0.5},  // left side bay between z=0 and z=+10 dugouts
+              {x: 9, z: 4, ry:-0.5},  // right side mirror bay
+              {x:-9, z:-6, ry: 0.3}], // left side bay between z=-10 and z=0 dugouts
+    // D-Day: farmhouse x:-4.5–4.5 z:1–7; outbuild1 x:-12.5–-7.5 z:0–4
+    //        outbuild2 x:8–12 z:-5.75–-2.25; church x:-10.5–-5.5 z:6–14; tank (14,-8)
+    dday:    [{x: -6,z:-5, ry: 0.8},  // south-west open, clear of outbuild1 (z<0) and farm
+              {x:  6,z:-4, ry:-0.9},  // south-east open, clear of outbuild2 (x>8)
+              {x:  0,z:-10,ry: 0.1}]  // due south, open field — all buildings are north
+  };
+  const SOLDIER_POS={
+    // Soldier stands at the edge of camp/town facing inward, in open ground
+    rome:    {x: 0, z:-20,ry: 0.0},    // south gate approach on the via, inside palisade at z=-26
+    crusades:{x: 0, z:-19,ry: 0.1},    // south of camp, clear of tents (last at z=-16)
+    agincourt:{x:-15,z:-10,ry: 0.5},   // south-west field, clear of trees & fires
+    waterloo:{x: 0, z:-13,ry: 0.0},    // south of stone wall at z=-8, open field
+    somme:   {x: 6, z:-16,ry:-0.2},    // right of trench south end, clear of sandbags
+    dday:    {x:-5, z:-13,ry: 0.1}     // south open field, clear of all buildings
+  };
+  const positions=NPC_POSITIONS[era.id]||[];
+  npcs.forEach((npc,i)=>{
+    const pos=positions[i]||{x:(i-1)*9,z:4,ry:0};
+    placeQuestNPC(npc,pos.x,pos.z,pos.ry,false);
+  });
+  // Always add soldier NPC last
+  const soldierDef={npc:'Sergeant Bridger',emoji:'⚔️',role:'Your Escort — Next Battle',lines:[
+    {t:'The men are ready. The enemy will not wait for us. When you give the word, we march.',src:'Soldier\'s Duty'},
+    {t:'You\'ve heard what these men have to say. Now the only words left are steel and fire. Shall we proceed?',src:'Command Decision'}
+  ]};
+  const sp=SOLDIER_POS[era.id]||{x:20,z:0,ry:Math.PI};
+  qSoldier=placeQuestNPC(soldierDef,sp.x,sp.z,sp.ry,true);
+}
+
+// ── QUEST MODE UPDATE ─────────────────────────────────
+function updateQuestMode(dt){
+  if(!questMode||!playerG)return;
+  const t=Date.now()*.001;
+  // Idle animation for NPCs
+  qTownNpcs.forEach(npc=>{
+    if(npc.userData.head) npc.userData.head.rotation.y=Math.sin(t*.6+npc.position.x)*.12;
+    if(npc.userData.lArm) npc.userData.lArm.rotation.x=Math.sin(t*.5+npc.position.z)*.06;
+    if(npc.userData.rArm) npc.userData.rArm.rotation.x=-Math.sin(t*.5+npc.position.z)*.06;
+    if(npc.userData.ring) npc.userData.ring.rotation.z=t*.8;
+    // Face player if nearby
+    const dx=playerG.position.x-npc.position.x, dz=playerG.position.z-npc.position.z;
+    const dist2=dx*dx+dz*dz;
+    if(dist2<50) npc.rotation.y=Math.atan2(dx,dz);
+    else npc.rotation.y=npc.userData.ry;
+  });
+  // Find nearest NPC for interaction prompt
+  let nearest=null, nearDist=9999;
+  qTownNpcs.forEach(npc=>{
+    const d=playerG.position.distanceTo(npc.position);
+    if(d<4.5&&d<nearDist){nearDist=d;nearest=npc;}
+  });
+  // Show/hide interaction prompt
+  const qi=Q('qinteract'),qs=Q('qsoldat_glow');
+  if(nearest&&nearest!==qActiveNpc){
+    qProximityNpc=nearest;
+    // Project NPC to screen
+    const wp=nearest.position.clone(); wp.y+=2.5;
+    const v=wp.project(cam);
+    const sw=window.innerWidth,sh=window.innerHeight;
+    const sx=(v.x*.5+.5)*sw, sy=(-.5*v.y+.5)*sh;
+    if(v.z<1){
+      qi.style.display='block'; qi.style.left=sx+'px'; qi.style.top=sy+'px';
+      Q('qi_name').textContent=nearest.userData.npcDef.npc;
+      Q('qi_key').textContent=nearest.userData.isSoldier?'[ E ] March to Battle':'[ E ] Speak';
+      if(nearest.userData.isSoldier){qs.style.display='none';}
+    }
+  } else {
+    qi.style.display='none'; qProximityNpc=nearest;
+  }
+  updateCam();
+}
+
+// ── DIALOG SYSTEM ─────────────────────────────────────
+function interactWithNearestNpc(){
+  if(!questMode||!qProximityNpc)return;
+  const npc=qProximityNpc;
+  if(npc.userData.isSoldier){
+    // Only allow march if all NPCs talked to
+    qAllTalked=qTownNpcs.filter(n=>!n.userData.isSoldier).every(n=>n.userData.talked);
+    if(qAllTalked){
+      openNpcDialog(npc);
+    } else {
+      // Flash hint
+      const qi=Q('qi_key'); qi.textContent='Talk to all figures first!';
+      setTimeout(()=>{qi.textContent='[ E ] March to Battle';},2000);
+    }
+    return;
+  }
+  openNpcDialog(npc);
+}
+
+function openNpcDialog(npc){
+  qActiveNpc=npc;
+  qDialogNpcIdx=qTownNpcs.indexOf(npc);
+  qDialogLineIdx=0;
+  renderDialogLine();
+  buildDialogNpcList();
+  Q('qdialog').classList.add('show');
+  Q('qinteract').style.display='none';
+}
+
+function buildDialogNpcList(){
+  const listEl=Q('qd_npclist'); listEl.innerHTML='';
+  const nonSoldier=qTownNpcs.filter(n=>!n.userData.isSoldier);
+  nonSoldier.forEach((n,i)=>{
+    const chip=document.createElement('div');
+    chip.className='qd_chip'+(n===qActiveNpc?' qac':'')+(n.userData.talked?' qtk':'');
+    chip.innerHTML=`<span class="qd_ico">${n.userData.npcDef.emoji}</span><span class="qd_tick">✓</span>`;
+    chip.title=n.userData.npcDef.npc;
+    chip.onclick=()=>{if(n!==qActiveNpc){qActiveNpc=n;qDialogLineIdx=0;renderDialogLine();buildDialogNpcList();}};
+    listEl.appendChild(chip);
+  });
+}
+
+function renderDialogLine(){
+  const npc=qActiveNpc; if(!npc)return;
+  const def=npc.userData.npcDef;
+  const line=def.lines[qDialogLineIdx];
+  Q('qd_ava').textContent=def.emoji;
+  Q('qd_name').textContent=def.npc;
+  Q('qd_role').textContent=def.role;
+  Q('qd_txt').textContent='"'+line.t+'"';
+  Q('qd_src').textContent='— '+line.src;
+  const isLast=qDialogLineIdx>=def.lines.length-1;
+  const isSoldier=npc.userData.isSoldier;
+  Q('qd_cont').textContent=isSoldier&&isLast?'⚔ MARCH TO BATTLE':isLast?'Done':'Continue ›';
+  Q('qd_hint').textContent=npc.userData.talked?'ALREADY SPOKEN WITH':'HISTORICAL FIGURE';
+}
+
+function advanceNpcDialog(){
+  const npc=qActiveNpc; if(!npc)return;
+  qDialogLineIdx++;
+  if(qDialogLineIdx>=npc.userData.npcDef.lines.length){
+    // Done with this NPC
+    npc.userData.talked=true;
+    if(npc.userData.isSoldier){closeNpcDialog();endQuest();return;}
+    closeNpcDialog();
+    // Check if all talked
+    qAllTalked=qTownNpcs.filter(n=>!n.userData.isSoldier).every(n=>n.userData.talked);
+    if(qAllTalked){
+      // Show soldier glow
+      const sg=Q('qsoldat_glow'); sg.style.display='block';
+      setTimeout(()=>{sg.style.display='none';},3500);
+    }
+    return;
+  }
+  renderDialogLine();
+  buildDialogNpcList();
+}
+
+function closeNpcDialog(){
+  qActiveNpc=null;
+  Q('qdialog').classList.remove('show');
+}
+
+// ── MAIN QUEST LAUNCH ─────────────────────────────────
 function startQuest(waveJustCleared){
   const eraId=G.era.id;
   const waveIdx=Math.max(0,Math.min(waveJustCleared-1,3));
   const npcs=QUESTS[eraId]&&QUESTS[eraId][waveIdx];
   if(!npcs||npcs.length===0){proceedToNextWave();return;}
-  questMode=true; questNpcs=npcs; questNpcIdx=0; questLineIdx=0; questNpcsDone=[];
-  G.playing=false; wActive=false;
-  // Clear all enemies during quest break
-  enemies.forEach(e=>scene.remove(e)); enemies=[]; projectiles.forEach(p=>scene.remove(p)); projectiles=[];
-  showQuestPanel();
-}
-
-function showQuestPanel(){
-  const npc=questNpcs[questNpcIdx];
-  if(!npc){endQuest();return;}
-  // Build NPC chips
-  const listEl=Q('qnpc_list'); listEl.innerHTML='';
-  questNpcs.forEach((n,i)=>{
-    const chip=document.createElement('div');
-    chip.className='qnpc_chip'+(i===questNpcIdx?' active':'')+(questNpcsDone.includes(i)?' done':'');
-    chip.innerHTML=`<span class="chip_ico">${n.emoji}</span><span class="chip_nm">${n.npc}</span><span class="chip_done">✓</span>`;
-    chip.onclick=()=>{if(questNpcsDone.includes(i)||i===questNpcIdx)return;questNpcIdx=i;questLineIdx=0;showQuestPanel();};
-    listEl.appendChild(chip);
-  });
-  // Wave banner
-  const waveNum=G.wave; // wave just cleared
-  Q('qwave_banner').textContent=`Wave ${toR(waveNum)} Complete — Interlude before Wave ${toR(waveNum+1)}`;
-  // Show NPC and first line
-  renderQuestLine();
-  const qs=Q('qscr'); qs.classList.add('show'); qs.style.display='flex';
-}
-
-function renderQuestLine(){
-  const npc=questNpcs[questNpcIdx];
-  const line=npc.lines[questLineIdx];
-  Q('qnpc_avatar').textContent=npc.emoji;
-  Q('qnpc_name').textContent=npc.npc;
-  Q('qnpc_role').textContent=npc.role;
-  Q('qtext').textContent=line.t;
-  Q('qsrc').textContent='— '+line.src;
-  const total=questNpcs.reduce((s,n)=>s+n.lines.length,0);
-  const done=questNpcs.slice(0,questNpcIdx).reduce((s,n)=>s+n.lines.length,0)+questLineIdx+1;
-  Q('qprog').textContent=`${done} of ${total}`;
-  // Last line of last NPC
-  const isLast=questNpcIdx===questNpcs.length-1&&questLineIdx===npc.lines.length-1;
-  Q('qnext').textContent=isLast?'To Battle ⚔':'Continue ›';
-}
-
-function questNext(){
-  const npc=questNpcs[questNpcIdx];
-  questLineIdx++;
-  if(questLineIdx>=npc.lines.length){
-    // Finished this NPC — mark done, move to next unread
-    if(!questNpcsDone.includes(questNpcIdx))questNpcsDone.push(questNpcIdx);
-    // Find next unread NPC
-    let nextIdx=-1;
-    for(let i=0;i<questNpcs.length;i++){if(!questNpcsDone.includes(i)){nextIdx=i;break;}}
-    if(nextIdx===-1){endQuest();return;}
-    questNpcIdx=nextIdx; questLineIdx=0;
-    showQuestPanel(); return;
-  }
-  renderQuestLine();
-  // Update chips
-  Q('qnpc_list').querySelectorAll('.qnpc_chip').forEach((c,i)=>{
-    c.className='qnpc_chip'+(i===questNpcIdx?' active':'')+(questNpcsDone.includes(i)?' done':'');
-  });
+  questMode=true; G.playing=true; wActive=false; qAllTalked=false;
+  // Clear enemies/projectiles
+  enemies.forEach(e=>scene.remove(e)); enemies=[];
+  projectiles.forEach(p=>scene.remove(p)); projectiles=[];
+  // Also remove allies from scene for town (respawn at next battle)
+  allies.forEach(a=>scene.remove(a)); allies=[];
+  // Rebuild scene as town
+  while(scene.children.length)scene.remove(scene.children[0]);
+  const builder=TOWN_BUILDERS[eraId];
+  if(builder)builder();
+  else buildRomanCastra();
+  // Re-add player at center of town
+  if(playerG){scene.add(playerG);playerG.position.set(0,0,0);}
+  // Place quest NPCs
+  placeQuestNpcsForWave(G.era,waveIdx);
+  // Update HUD banners
+  showScr('hud');
+  const lbl=TOWN_LABELS[eraId]||{title:'ENCAMPMENT',sub:''};
+  Q('qt_title').textContent=lbl.title; Q('qt_sub').textContent=lbl.sub;
+  Q('qtown_label').style.display='block';
+  // Show hint
+  const hint=Q('qhud_hint'); hint.style.display='block';
+  setTimeout(()=>{hint.style.display='none';},4000);
+  // Hide town label after 5s
+  setTimeout(()=>{Q('qtown_label').style.display='none';},5000);
+  // Hide reload bar
+  Q('rlwrap').classList.remove('on');
+  // Update wave display
+  Q('wtxt').textContent='INTERLUDE'; Q('otxt').textContent='Speak with the historical figures'; Q('opg').textContent='';
 }
 
 function endQuest(){
   questMode=false;
-  Q('qscr').classList.remove('show'); Q('qscr').style.display='none';
-  showScr('hud'); G.playing=true;
-  setTimeout(()=>beginWave(G.wave+1),800);
+  closeNpcDialog();
+  Q('qtown_label').style.display='none';
+  Q('qinteract').style.display='none';
+  Q('qsoldat_glow').style.display='none';
+  qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
+  buildScene(G.era);
+  playerG=buildPlayer(G.era,G.ch);
+  if(playerG){scene.add(playerG);playerG.position.set(0,.5,0);}
+  spawnAllies();
+  showScr('hud');
+  setTimeout(()=>beginWave(G.wave+1),1200);
 }
 
 function proceedToNextWave(){
@@ -2163,6 +2829,8 @@ function proceedToNextWave(){
   G.playing=true; wActive=false;
   setTimeout(()=>beginWave(G.wave+1),1200);
 }
+
+
 
 function checkWave(){
   if(!wActive||!wSpawnDone)return;
@@ -2602,7 +3270,7 @@ function loop(){
   requestAnimationFrame(loop);
   const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
   if(G.playing&&!G.paused){
-    updatePlayer(dt); updateEnemies(dt); updateAllies(dt); updateWaves(dt);
+    updatePlayer(dt); if(questMode)updateQuestMode(dt); updateEnemies(dt); updateAllies(dt); if(!questMode)updateWaves(dt);
     updateProjectiles(dt); updateCam(); updateParts(dt); drawMinimap();
   } else if(menuActive){
     menuT+=dt;
@@ -2622,28 +3290,37 @@ clock.start(); initTouch(); buildMenuScene(); loop();
 setTimeout(()=>{Q('lscr').style.display='none';showScr('mscr');},2500);
 </script>
 
-<!-- QUEST / NPC DIALOGUE SCREEN -->
+<!-- IN-WORLD QUEST UI ELEMENTS -->
 
-<div id="qscr" style="display:none;">
-  <div id="qbg"></div>
-  <div id="qpanel">
-    <div id="qwave_banner"></div>
-    <div id="qnpc_area">
-      <div id="qnpc_avatar"></div>
-      <div id="qnpc_info">
-        <div id="qnpc_name"></div>
-        <div id="qnpc_role"></div>
-      </div>
+<!-- NPC Interaction Prompt (floats above NPC in world) -->
+
+<div id="qinteract">
+  <span id="qi_name"></span>
+  <span id="qi_key">[ E ] Speak</span>
+</div>
+<!-- Soldier ready indicator -->
+<div id="qsoldat_glow">⚔ MARCH TO BATTLE</div>
+<!-- Town label top-center -->
+<div id="qtown_label"><h3 id="qt_title"></h3><p id="qt_sub"></p></div>
+<!-- Hint overlay shown on quest start -->
+<div id="qhud_hint"><p>Speak with the historical figures</p><small>Walk close &amp; press E or tap</small></div>
+<!-- RPG-style dialog box at screen bottom -->
+<div id="qdialog">
+  <div id="qd_top">
+    <div id="qd_ava"></div>
+    <div id="qd_who">
+      <div id="qd_name"></div>
+      <div id="qd_role"></div>
     </div>
-    <div id="qbubble">
-      <div id="qtext"></div>
-      <div id="qsrc"></div>
-    </div>
-    <div id="qnav">
-      <div id="qprog"></div>
-      <button id="qnext" onclick="questNext()">Continue ›</button>
-    </div>
-    <div id="qnpc_list"></div>
+    <div id="qd_npclist"></div>
+  </div>
+  <div id="qd_body">
+    <div id="qd_txt"></div>
+    <div id="qd_src"></div>
+  </div>
+  <div id="qd_foot">
+    <div id="qd_hint">SPEAKING WITH HISTORICAL FIGURE</div>
+    <button id="qd_cont" onclick="advanceNpcDialog()">Continue ›</button>
   </div>
 </div>
 </body>
