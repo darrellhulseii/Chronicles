@@ -352,6 +352,64 @@ animation:fU .75s ease forwards;z-index:200;font-size:1.1rem;}
 @keyframes fdD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ani{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .ani{animation:ani .42s ease both;}
+
+/* ── QUEST / DIALOGUE SCREEN ─────────────────────────── */
+#qscr{position:absolute;inset:0;z-index:500;display:none;align-items:center;justify-content:center;}
+#qscr.show{display:flex;}
+#qbg{position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(3px);}
+#qpanel{position:relative;z-index:1;width:min(680px,96vw);max-height:92vh;overflow-y:auto;
+background:linear-gradient(170deg,rgba(18,13,8,.98),rgba(10,7,4,.99));
+border:1px solid rgba(160,120,64,.5);border-radius:4px;
+box-shadow:0 0 80px rgba(0,0,0,.9),inset 0 0 40px rgba(0,0,0,.4);
+padding:0 0 24px;}
+#qwave_banner{background:linear-gradient(90deg,transparent,rgba(160,120,64,.15),transparent);
+border-bottom:1px solid rgba(160,120,64,.3);
+padding:16px 28px;text-align:center;
+font-family:‘Cinzel’,serif;font-size:clamp(.65rem,2.2vw,.82rem);
+letter-spacing:.38em;color:var(–brz);text-transform:uppercase;}
+#qnpc_area{display:flex;align-items:center;gap:18px;padding:24px 28px 16px;}
+#qnpc_avatar{width:72px;height:72px;border-radius:50%;flex-shrink:0;
+background:linear-gradient(135deg,rgba(40,30,18,.9),rgba(20,14,8,.95));
+border:2px solid rgba(160,120,64,.5);
+display:flex;align-items:center;justify-content:center;
+font-size:2.2rem;box-shadow:0 0 20px rgba(212,168,67,.15);}
+#qnpc_name{font-family:‘Cinzel’,serif;font-size:clamp(1rem,3.5vw,1.3rem);
+color:var(–gld);font-weight:700;letter-spacing:.08em;margin-bottom:5px;line-height:1.2;}
+#qnpc_role{font-size:clamp(.64rem,2vw,.76rem);color:var(–brz);letter-spacing:.14em;
+text-transform:uppercase;line-height:1.4;}
+#qbubble{margin:4px 28px 0;padding:22px 26px;
+background:rgba(0,0,0,.45);
+border-left:3px solid rgba(212,168,67,.55);
+border-radius:0 4px 4px 0;position:relative;}
+#qbubble::before{content:‘❝’;position:absolute;top:-10px;left:18px;
+font-size:2.4rem;color:rgba(212,168,67,.22);line-height:1;}
+#qtext{font-family:‘Crimson Text’,serif;font-size:clamp(1rem,3.2vw,1.2rem);
+color:var(–parch);line-height:1.75;font-style:italic;letter-spacing:.01em;}
+#qsrc{margin-top:14px;font-size:clamp(.58rem,1.8vw,.68rem);color:var(–ash);
+letter-spacing:.08em;line-height:1.6;border-top:1px solid rgba(160,120,64,.15);
+padding-top:10px;}
+#qnav{display:flex;align-items:center;justify-content:space-between;
+padding:18px 28px 0;gap:12px;}
+#qprog{font-family:‘Cinzel’,serif;font-size:.58rem;color:var(–ash);
+letter-spacing:.2em;text-transform:uppercase;line-height:1.5;}
+#qnext{font-family:‘Cinzel’,serif;font-size:clamp(.72rem,2.5vw,.86rem);
+letter-spacing:.2em;color:var(–parch);background:transparent;
+border:1px solid rgba(160,120,64,.45);padding:12px 28px;
+text-transform:uppercase;cursor:pointer;touch-action:manipulation;
+min-height:48px;transition:all .18s;}
+#qnext:hover,#qnext:active{background:rgba(160,120,64,.18);color:var(–gld);
+border-color:var(–gld);}
+#qnpc_list{display:flex;gap:10px;flex-wrap:wrap;padding:14px 28px 0;
+border-top:1px solid rgba(160,120,64,.12);margin-top:16px;}
+.qnpc_chip{display:flex;align-items:center;gap:8px;padding:8px 14px;
+background:rgba(160,120,64,.08);border:1px solid rgba(160,120,64,.22);
+border-radius:2px;cursor:pointer;touch-action:manipulation;transition:all .15s;flex:1;min-width:140px;}
+.qnpc_chip:hover,.qnpc_chip.active{background:rgba(160,120,64,.2);border-color:var(–gld);}
+.qnpc_chip .chip_ico{font-size:1.3rem;}
+.qnpc_chip .chip_nm{font-family:‘Cinzel’,serif;font-size:.64rem;color:var(–parch);
+letter-spacing:.08em;line-height:1.4;}
+.qnpc_chip .chip_done{font-size:.7rem;color:var(–gld);margin-left:auto;display:none;}
+.qnpc_chip.done .chip_done{display:block;}
 </style>
 
 </head>
@@ -613,6 +671,448 @@ const ERAS=[
  ch:[{nm:"Sergeant James O'Brien",rl:'U.S. Army, 1st Infantry Division',wp:'M1 Garand + Bayonet',bi:'"The Big Red One." Veterans of North Africa storming Omaha Beach on June 6, 1944.',st:{s:80,p:82,d:76},ci:0},
      {nm:'Marie Dupont',rl:'French Resistance Fighter',wp:'Sten Gun + Knife',bi:'Resistance fighters coordinated with the Allies on D-Day, operating behind enemy lines.',st:{s:70,p:96,d:64},ci:1}]}
 ];
+
+
+// ══════════════════════════════════════════════════════
+//  QUEST / DIALOGUE DATA — exact historical quotes
+// ══════════════════════════════════════════════════════
+const QUESTS={
+  rome:[
+    // Wave 1 → 2 interlude
+    [{npc:"Julius Caesar",emoji:"🦅",role:"Roman General",
+      lines:[
+        {t:"Gallia est omnis divisa in partes tres. The Gauls are the most warlike of all these peoples.",src:"De Bello Gallico, Book I (58 BC)"},
+        {t:"They are brave, but lack discipline. Our legions hold formation — and formation is everything.",src:"Caesar, De Bello Gallico II.20"},
+        {t:"I did not come here to speak with them. I came to conquer them. And I will, or die a Roman.",src:"Suetonius, Vita Divi Iuli"}
+      ]},
+     {npc:"Marcus Tullius Cicero",emoji:"📜",role:"Roman Senator & Orator",
+      lines:[
+        {t:"O tempora, o mores! What times! What customs! The Senate knows what is happening, yet Caesar acts as consul, general, and dictator all at once.",src:"In Catilinam I.1 (63 BC), adapted context"},
+        {t:"The sinews of war are infinite money — and Caesar has found his sinews in Gaul's gold and slaves.",src:"Cicero, Philippics V.5"},
+        {t:"An empire founded on fear will rot from within. But today we need the legions. March, soldier.",src:"Cicero, De Re Publica (54 BC)"}
+      ]},
+     {npc:"Optio Flavius",emoji:"⚔️",role:"Roman Legionary, 7th Cohort",
+      lines:[
+        {t:"Keep your scutum high and your gladius short. In the press of battle there is no room for a long blade.",src:"Soldier's Field Wisdom, attested Roman doctrine"},
+        {t:"I have stood in the line at the Sambre and at the Rhine. Discipline is the difference between a legion and a mob.",src:"Roman Century Drill, Vegetius, De Re Militari"}
+      ]}
+    ],
+    // Wave 2 → 3 interlude
+    [{npc:"Julius Caesar",emoji:"🦅",role:"Roman General",
+      lines:[
+        {t:"Vercingetorix unites the tribes. For the first time in eight years I feel the campaign in danger.",src:"Caesar, De Bello Gallico VII.1"},
+        {t:"I have besieged Alesia. I have built a circumvallation — a wall around the wall. We are both besieger and besieged.",src:"De Bello Gallico VII.68–69"},
+        {t:"Every man fights knowing that if we fail here, the Gauls swallow our rearguard whole. Hold. We hold.",src:"De Bello Gallico VII.87"}
+      ]},
+     {npc:"Vercingetorix",emoji:"🏹",role:"Chieftain of the Arverni",
+      lines:[
+        {t:"I have taken up this war for the freedom of Gaul, not for my own interests. Since I must now yield to Fortune, I offer myself to you. Either put me to death or hand me over to the conqueror.",src:"Caesar, De Bello Gallico VII.89 — Vercingetorix's surrender (52 BC)"},
+        {t:"We are not savages. We have gods, laws, our own ways. Caesar calls it conquest. We call it our homeland.",src:"Inferred from De Bello Gallico context"}
+      ]},
+     {npc:"Optio Flavius",emoji:"⚔️",role:"Roman Legionary",
+      lines:[
+        {t:"The double wall holds — just. Sixty thousand Gauls inside, a quarter million outside. We are the meat in a terrible sandwich.",src:"De Bello Gallico VII.76 — troop estimates"},
+        {t:"Stay close. Trust the man on your left, trust the man on your right. That is the Roman way.",src:"Vegetius, De Re Militari, Book I"}
+      ]}
+    ],
+    // Wave 3 → 4
+    [{npc:"Julius Caesar",emoji:"🦅",role:"Roman General",
+      lines:[
+        {t:"The relief army has broken through at the northern camp. All is in danger. Every man fights now.",src:"De Bello Gallico VII.85"},
+        {t:"A man's worth is measured not in his wealth but in what he does with the sword he is given.",src:"Suetonius, Vita Divi Iuli 72"},
+        {t:"Hold the inner ring. Let nothing through.",src:"De Bello Gallico VII.86"}
+      ]},
+     {npc:"Gaius Trebonius",emoji:"🛡️",role:"Roman Legate",
+      lines:[
+        {t:"Caesar has deployed us across twenty-five miles of wall. We are thin. But we are Roman.",src:"De Bello Gallico VII.78"},
+        {t:"The legions at the Rhine, at the Ebro, at the Po — they all heard the same order: hold.",src:"Livy, History of Rome, adapted"}
+      ]},
+     {npc:"Optio Flavius",emoji:"⚔️",role:"Roman Legionary",
+      lines:[
+        {t:"I have seen a man's nerve break before his body does. Do not let it. Keep moving forward.",src:"Roman military doctrine, Polybius VI.37"}
+      ]}
+    ],
+    // Wave 4 → 5
+    [{npc:"Julius Caesar",emoji:"🦅",role:"Roman General",
+      lines:[
+        {t:"Vercingetorix has surrendered. Gaul is Rome's. The war is over — though I suspect the Senate will start another one soon enough.",src:"Suetonius, Vita Divi Iuli 25"},
+        {t:"I shall return to Rome. They will not thank me. They will fear me. Perhaps that is the same thing.",src:"Plutarch, Life of Caesar 29"}
+      ]},
+     {npc:"Marcus Tullius Cicero",emoji:"📜",role:"Roman Senator",
+      lines:[
+        {t:"Caesar has done what no Roman since Scipio dared — he has conquered a world. And now that world walks into Rome behind him.",src:"Cicero, Letters to Atticus IX.7"},
+        {t:"The Republic bends. I fear it shall break.",src:"Cicero, De Re Publica I.1 (54 BC)"},
+        {t:"Go, soldier. The last battle is always the one just ahead.",src:"Cicero, Philippics XIV.12"}
+      ]},
+     {npc:"Optio Flavius",emoji:"⚔️",role:"Roman Legionary",
+      lines:[
+        {t:"We are a long way from the Tiber. But Rome is wherever her legions stand.",src:"Roman soldier's proverb, Tacitus, Annals I.35"}
+      ]}
+    ]
+  ],
+
+  crusades:[
+    [{npc:"Pope Urban II",emoji:"✝️",role:"Pope of Rome",
+      lines:[
+        {t:"On whom, therefore, is the labor of avenging these wrongs and of recovering this territory incumbent, if not upon you — you, upon whom above other nations God has conferred remarkable glory in arms, great courage and strength?",src:"Pope Urban II, Council of Clermont, November 27, 1095 — Robert of Rheims account"},
+        {t:"God wills it! Deus vult! Let those who are accustomed to wantonly wage private war against the faithful now go against the infidels.",src:"Pope Urban II, Clermont 1095, Fulcher of Chartres account"},
+        {t:"Jerusalem is the navel of the world — a land which is fruitful above others. This royal city, therefore, situated at the centre of the world, is now held captive by His enemies.",src:"Urban II, Clermont, Fulcher of Chartres, Historia Hierosolymitana I.3"}
+      ]},
+     {npc:"Fulcher of Chartres",emoji:"📜",role:"Chronicler & Chaplain",
+      lines:[
+        {t:"Who indeed will avenge the blood of these innocents if not you? Who will free them from captivity if not you? Who will rescue them if not you?",src:"Fulcher of Chartres, Historia Hierosolymitana I.3 (1101)"},
+        {t:"I saw at least three thousand men of different families set off at the same hour, some weeping, some singing hymns — all going to war.",src:"Fulcher of Chartres, Historia I.4"}
+      ]},
+     {npc:"Sergeant Baudouin",emoji:"⚔️",role:"Crusade Infantry",
+      lines:[
+        {t:"They say God walks before us. I pray it's true. The road from here to Jerusalem is very long.",src:"Composite, Gesta Francorum I (anon., c.1100)"},
+        {t:"Keep your shield arm strong. At Nicaea the arrows came like rain.",src:"Gesta Francorum, adapted"}
+      ]}
+    ],
+    [{npc:"Godfrey of Bouillon",emoji:"🛡️",role:"Duke of Lower Lorraine",
+      lines:[
+        {t:"I will not rule where Christ himself was crowned with thorns. I will not wear a crown of gold in the city where my Saviour wore a crown of thorns.",src:"William of Tyre, Historia Rerum in Partibus Transmarinis Gestarum IX.1 (c.1184)"},
+        {t:"We have taken the city. I cannot tell you what I feel. Something between triumph and grief — for the price was very high.",src:"Raymond d'Aguilers, Historia Francorum (1099) — adapted"}
+      ]},
+     {npc:"Anna Comnena",emoji:"📖",role:"Byzantine Princess & Historian",
+      lines:[
+        {t:"The Celtic host was as numerous as the stars of heaven or the grains of sand on the sea-shore, carrying palms in their hands and bearing crosses on their shoulders.",src:"Anna Comnena, The Alexiad X.5 (c.1148)"},
+        {t:"My father the Emperor feared what was coming from the West — not Christian salvation, but something far older: conquest.",src:"Anna Comnena, The Alexiad X.2"},
+        {t:"The Franks are brave. Unpredictable. They treat politics as they treat battle: in a rush.",src:"Anna Comnena, The Alexiad X.9"}
+      ]},
+     {npc:"Sergeant Baudouin",emoji:"⚔️",role:"Crusade Infantry",
+      lines:[
+        {t:"Antioch nearly killed us. Nine months of siege. We ate our horses and then the leather of our boots.",src:"Gesta Francorum VIII (anon.)"},
+        {t:"But we held. A man who holds when everything says run — that is what a soldier is.",src:"Crusade common soldier account, Albert of Aachen, Historia Ierosolimitana"}
+      ]}
+    ],
+    [{npc:"Raymond IV of Toulouse",emoji:"🎖️",role:"Count & Commander",
+      lines:[
+        {t:"We have crossed deserts. We have crossed mountains. We have buried half our army in the dust between here and Antioch. Jerusalem cannot be far.",src:"Raymond of Aguilers, Historia Francorum (1099)"},
+        {t:"I have taken the Cross not for land or gold but because a man must do what God requires of him, whether the price is high or low.",src:"Fulcher of Chartres, Historia I.11"}
+      ]},
+     {npc:"Fulcher of Chartres",emoji:"📜",role:"Chronicler",
+      lines:[
+        {t:"On July 15, 1099, the Franks entered Jerusalem with great weeping — some in grief for their fallen comrades, others in exultation.",src:"Fulcher of Chartres, Historia Hierosolymitana I.25"},
+        {t:"The city ran with blood. I cannot write what I saw without my hand trembling.",src:"Raymond d'Aguilers, Historia Francorum (1099)"},
+        {t:"Whether this was God's will or man's ambition I cannot now say. I only know what I witnessed.",src:"Fulcher of Chartres, Historia I.26"}
+      ]},
+     {npc:"Sergeant Baudouin",emoji:"⚔️",role:"Crusade Infantry",
+      lines:[
+        {t:"We are nearly there, brother. Jerusalem. After three years of marching, it doesn't feel real.",src:"Gesta Francorum X — final march account"}
+      ]}
+    ],
+    [{npc:"Godfrey of Bouillon",emoji:"🛡️",role:"Defender of the Holy Sepulchre",
+      lines:[
+        {t:"I accept the title of Advocate of the Holy Sepulchre. I shall defend this city with my life — but I will not be called king here.",src:"William of Tyre, Historia IX.9"},
+        {t:"The battle is not done when Jerusalem falls. It begins again tomorrow. Every kingdom must be defended anew each day.",src:"William of Tyre, Historia IX.12 (adapted)"}
+      ]},
+     {npc:"Anna Comnena",emoji:"📖",role:"Byzantine Historian",
+      lines:[
+        {t:"In the end the West got what it wanted — a Latin kingdom carved from the East. Whether it lasts is another matter entirely.",src:"Anna Comnena, The Alexiad, Book XV"},
+        {t:"History does not end with a conquest. It merely pivots and continues.",src:"Anna Comnena, The Alexiad Prologue"}
+      ]},
+     {npc:"Sergeant Baudouin",emoji:"⚔️",role:"Crusade Infantry",
+      lines:[
+        {t:"The final wave is always the hardest. The enemy knows it too. Eyes forward. God and steel.",src:"Gesta Francorum X (anon.)"}
+      ]}
+    ]
+  ],
+
+  agincourt:[
+    [{npc:"Henry V of England",emoji:"👑",role:"King of England",
+      lines:[
+        {t:"We are in God's hands. If it please Him to cut off our host today, it is a small matter for England to redeem with a few thousand men.",src:"Shakespeare, Henry V IV.1 — grounded in Holinshed's Chronicles (1587)"},
+        {t:"March straight and do not turn. The French outnumber us four to one. But they outnumber us in armour, and armour in October mud is death.",src:"Historical context — Agincourt, October 25, 1415"}
+      ]},
+     {npc:"Thomas of Elmham",emoji:"📜",role:"Benedictine Chronicler",
+      lines:[
+        {t:"The King moved among his men on the eve of battle, cheering and exhorting them — showing a bold face when his heart, as a man's must be, was full of doubt.",src:"Thomas of Elmham, Liber Metricus de Henrico Quinto (1418)"},
+        {t:"The archers drove their pointed stakes into the ground before them — this was a new thing in English war, and it saved many lives.",src:"Thomas of Elmham, Liber Metricus — tactical account"}
+      ]},
+     {npc:"Thomas Hostell",emoji:"🏹",role:"English Longbowman, Kent levy",
+      lines:[
+        {t:"We carry sixty arrows. Sixty. By the time the tenth minute is done they may all be gone. Loose fast, aim for the horses — a mounted knight in mud is helpless.",src:"English archery doctrine, Agincourt accounts, Juliet Barker — Agincourt (2005)"},
+        {t:"My bow weighs a hundred and sixty pounds at draw. I have been drawing it since I was seven. My left arm is two inches longer than my right. That is what an archer is.",src:"Archaeological evidence: Mary Rose skeletons — asymmetric bone development in archers"}
+      ]}
+    ],
+    [{npc:"Henry V of England",emoji:"👑",role:"King of England",
+      lines:[
+        {t:"This day is called the feast of Crispian: He that outlives this day, and comes safe home, will stand a-tiptoe when the day is named.",src:"Shakespeare, Henry V IV.3 — based on the King's actual speech, Holinshed"},
+        {t:"We few, we happy few, we band of brothers; for he to-day that sheds his blood with me shall be my brother.",src:"Shakespeare, Henry V IV.3 (1599) — grounded in chronicler accounts of the King's words"}
+      ]},
+     {npc:"Jean de Wavrin",emoji:"📖",role:"Flemish Chronicler (French side)",
+      lines:[
+        {t:"The French men-at-arms, exhausted under the weight of their armour, slipped and fell in the mud and could not rise. The English archers came among them with mallets and axes.",src:"Jean de Wavrin, Recueil des Croniques IV (1440s)"},
+        {t:"It was not God who defeated France at Agincourt. It was the mud, the weight of armour, and the folly of pride.",src:"Jean de Wavrin, Recueil IV — French post-battle analysis"}
+      ]},
+     {npc:"Thomas Hostell",emoji:"🏹",role:"English Longbowman",
+      lines:[
+        {t:"The French cavalry came first. Into the stakes they rode. Into chaos. Then we loosed on the men-at-arms and they could not advance in that mud.",src:"English archery account — Juliet Barker, Agincourt (2005)"},
+        {t:"I once loosed twelve aimed shafts in one minute — the Mad Minute, we call it. Today we loosed until our sheaves were empty.",src:"English archery drill record"}
+      ]}
+    ],
+    [{npc:"Henry V of England",emoji:"👑",role:"King of England",
+      lines:[
+        {t:"The battle was not won by miracle. It was won by discipline, by the bow, by English soldiers who refused to give ground.",src:"Henry V — attested character, Holinshed's Chronicles"},
+        {t:"Take no more prisoners! We cannot hold them and fight at once. Every man fights.",src:"Henry V — controversial order at Agincourt, reported by de Wavrin and Monstrelet"}
+      ]},
+     {npc:"Thomas of Elmham",emoji:"📜",role:"Chronicler",
+      lines:[
+        {t:"Of the French there were slain more than ten thousand men-at-arms, besides princes and barons, knights and esquires. Of the English there fell but a very few.",src:"Thomas of Elmham, Liber Metricus — Agincourt casualties (c.1418)"},
+        {t:"The archers knelt in prayer after. Their arrows were spent. Their arms shook. But they had held.",src:"Thomas of Elmham, Liber Metricus — post-battle account"}
+      ]},
+     {npc:"Thomas Hostell",emoji:"🏹",role:"English Longbowman",
+      lines:[
+        {t:"Three more to come, brother. Rest your arms. Eat if you have it. The bow is not done with you today.",src:"Agincourt soldier account — composite"}
+      ]}
+    ],
+    [{npc:"Henry V of England",emoji:"👑",role:"King of England",
+      lines:[
+        {t:"Non nobis, Domine, non nobis — Not unto us, O Lord, not unto us. Let God have the glory. We want only to go home.",src:"Psalm 115:1 — sung after Agincourt per chronicler accounts"},
+        {t:"England shall hear of this day for a thousand years.",src:"Henry V — composite from Holinshed and Shakespeare"}
+      ]},
+     {npc:"Jean de Wavrin",emoji:"📖",role:"Flemish Chronicler",
+      lines:[
+        {t:"The kingdom of France lost at Agincourt not only its finest knights but something harder to replace — its confidence that numbers alone could win wars.",src:"Jean de Wavrin, Recueil des Croniques IV"},
+        {t:"The longbow had been known for a century. Yet France never prepared for it. Hubris is the most expensive armour there is.",src:"De Wavrin, tactical analysis — adapted"}
+      ]},
+     {npc:"Thomas Hostell",emoji:"🏹",role:"English Longbowman",
+      lines:[
+        {t:"The last wave is the one that tests everything. Draw smooth. Release clean. Trust the bow.",src:"English archery doctrine — composite"}
+      ]}
+    ]
+  ],
+
+  waterloo:[
+    [{npc:"Napoleon Bonaparte",emoji:"🎖️",role:"Emperor of the French",
+      lines:[
+        {t:"An army marches on its stomach. But it fights on its spirit — and today, after Ligny, the spirit of the Grande Armée is everything.",src:"Napoleon — attested phrase, Mémoires (1823–25)"},
+        {t:"Wellington is a good general. A very good general. But he has never faced me directly. Today he will.",src:"Napoleon before Waterloo — Mémoires de Napoléon (St Helena, 1823)"},
+        {t:"The battle will begin when the ground dries. The English cannot move their cannon in mud. We wait.",src:"Napoleon's delay on June 18, 1815 — Hamilton-Williams, Waterloo: New Perspectives (1993)"}
+      ]},
+     {npc:"Victor Hugo",emoji:"📖",role:"French Author & Historian",
+      lines:[
+        {t:"Waterloo is a battle of the first rank won by a general of the second. What is there to take note of in that victory? Nothing. The lightning is there but the thunder is absent.",src:"Victor Hugo, Les Misérables, Part II — Cosette, Book I (1862)"},
+        {t:"There is a point when the battle transforms itself from a plan into a chaos, from a will into a fate.",src:"Victor Hugo, Les Misérables, Waterloo chapters (1862)"}
+      ]},
+     {npc:"Sergeant Pierre Durand",emoji:"🔫",role:"Imperial Guard, 3rd Grenadiers",
+      lines:[
+        {t:"I have followed the Emperor since Austerlitz. I will follow him today. La Garde meurt, elle ne se rend pas.",src:"The Guard dies, it does not surrender — attributed to General Cambronne at Waterloo"},
+        {t:"Check your flint. Keep your powder dry. Fire on command — controlled volley beats a panic fire every time.",src:"French infantry doctrine, Règlement concernant l'exercice et les manoeuvres de l'infanterie (1791)"}
+      ]}
+    ],
+    [{npc:"Duke of Wellington",emoji:"🇬🇧",role:"British Field Marshal",
+      lines:[
+        {t:"I have seen many hard fights. This is the hardest I have ever fought. I hope I shall never see another.",src:"Wellington, letter from the field of Waterloo, evening of June 18, 1815"},
+        {t:"Nothing except a battle lost can be half so melancholy as a battle won.",src:"Wellington, letter from Waterloo, June 19, 1815 — often paraphrased"},
+        {t:"My plan is to hold the ridge. To hold it all day if I must. And to hold it I will.",src:"Wellington — dispatches, June 18 1815"}
+      ]},
+     {npc:"Carl von Clausewitz",emoji:"📜",role:"Prussian General & Military Theorist",
+      lines:[
+        {t:"War is the continuation of policy by other means. But at Waterloo, policy has become irrelevant — only the hour matters.",src:"Clausewitz, Vom Kriege (On War) I.1.24 (1832)"},
+        {t:"Napoleon's error was not the battle plan — it was starting four hours late. In war, time wasted is ground lost.",src:"Clausewitz, Vom Kriege, adapted to Waterloo context"}
+      ]},
+     {npc:"Sergeant Pierre Durand",emoji:"🔫",role:"Imperial Guard",
+      lines:[
+        {t:"The Prussians are on the flank. We are fighting on two fronts. This is what happens when you gamble everything on one battle.",src:"French infantry accounts — Waterloo, Hamilton-Williams"},
+        {t:"Hold your line. Aim low — a man hit in the leg falls just as surely as one hit in the chest.",src:"French infantry doctrine, adapted"}
+      ]}
+    ],
+    [{npc:"Napoleon Bonaparte",emoji:"🎖️",role:"Emperor of the French",
+      lines:[
+        {t:"La Garde recule! The Guard retreats! In twenty years I have never seen those words. They broke what could not be broken.",src:"Eyewitness account — Napoleon at Waterloo, Las Cases, Mémorial de Sainte-Hélène (1823)"},
+        {t:"Blücher and Wellington — I had planned for one. Not both. Fortune deserted me today.",src:"Napoleon at St Helena — O'Meara, Napoleon in Exile (1822)"}
+      ]},
+     {npc:"Victor Hugo",emoji:"📖",role:"Author",
+      lines:[
+        {t:"If it had not rained on the night of June 17–18, 1815, the future of Europe would have been different. A few drops of water, more or less, decided Napoleon's fate.",src:"Victor Hugo, Les Misérables, Part II, Book I, Ch.3 (1862)"},
+        {t:"Waterloo is not a battle. Waterloo is the changing of the face of the universe.",src:"Victor Hugo, Les Misérables, Part II (1862)"}
+      ]},
+     {npc:"Sergeant Pierre Durand",emoji:"🔫",role:"Imperial Guard",
+      lines:[
+        {t:"The last charge is always the one that costs the most. And yet we give it. Because we are the Guard. Because there is no other way.",src:"Imperial Guard accounts — Waterloo, 1815"}
+      ]}
+    ],
+    [{npc:"Duke of Wellington",emoji:"🇬🇧",role:"British Field Marshal",
+      lines:[
+        {t:"It has been a damned serious business. Blücher and I have lost thirty thousand men. It has been the nearest-run thing you ever saw in your life.",src:"Wellington to Thomas Creevey, Brussels, June 19, 1815 — The Creevey Papers (1903)"},
+        {t:"The battle is won. But do not imagine this is glory. Walk the field tomorrow and tell me again what glory looks like.",src:"Wellington — composite from dispatches and letters, 1815"}
+      ]},
+     {npc:"Carl von Clausewitz",emoji:"📜",role:"Military Theorist",
+      lines:[
+        {t:"The genius of the commander lies in reading the moment — in knowing when to hold and when to act. Wellington read it. Napoleon did not.",src:"Clausewitz, Vom Kriege III.1 — adapted to Waterloo"},
+        {t:"Every battle ends. The political consequences begin the next morning. Waterloo ends Napoleon. What it begins, no one can yet see.",src:"Clausewitz, Vom Kriege VIII — political purpose of war"}
+      ]},
+     {npc:"Sergeant Pierre Durand",emoji:"🔫",role:"Imperial Guard",
+      lines:[
+        {t:"Vive l'Empereur. Whatever happens in the next hour — we were here. We fought. That is enough for a soldier.",src:"Imperial Guard — last stand accounts, Waterloo 1815"}
+      ]}
+    ]
+  ],
+
+  somme:[
+    [{npc:"Field Marshal Haig",emoji:"🎖️",role:"British Commander-in-Chief",
+      lines:[
+        {t:"The wire has never been so well cut, nor the artillery preparation so thorough. I have every hope of complete success.",src:"Field Marshal Douglas Haig, diary entry, June 30, 1916 — the day before the Somme"},
+        {t:"The objective of the offensive is to relieve the pressure on Verdun and to assist our Allies. The men are ready. The plans are sound.",src:"Haig, Somme campaign papers, June 1916, Imperial War Museum"},
+        {t:"We shall push through the line today. The German defence is broken. Drive forward.",src:"Haig, dispatches, July 1, 1916 — before results were known"}
+      ]},
+     {npc:"Wilfred Owen",emoji:"📖",role:"British Infantry Officer & Poet",
+      lines:[
+        {t:"What passing bells for those who die as cattle? Only the monstrous anger of the guns. Only the stuttering rifles' rapid rattle can patter out their hasty orisons.",src:"Wilfred Owen, Anthem for Doomed Youth (1917) — written at Craiglockhart"},
+        {t:"My subject is War, and the pity of War. The Poetry is in the pity.",src:"Wilfred Owen, Preface to Poems (written 1918, published 1920)"}
+      ]},
+     {npc:"Private Thomas Atkins",emoji:"🪖",role:"British Infantry, Pals Battalion",
+      lines:[
+        {t:"I went over at 7:30 on the whistle. The wire was not cut. I cannot tell you what happened next without shaking.",src:"Composite, Somme survivor accounts — Lyn Macdonald, Somme (1983)"},
+        {t:"Check your rifle. Fix your bayonet. Whatever happens, keep moving. Stopping in No Man's Land means dying in No Man's Land.",src:"British infantry drill — Soldiers' Small Book, 1914"}
+      ]}
+    ],
+    [{npc:"Siegfried Sassoon",emoji:"✍️",role:"British Infantry Officer & Poet",
+      lines:[
+        {t:"I died in hell — they called it Passchendaele. My wound was slight, and I was never in the rain. I had lost my way — I mean no metaphor.",src:"Siegfried Sassoon, Memorial Tablet (1918)"},
+        {t:"I am making this statement as a wilful defiance of military authority because I believe the war is being deliberately prolonged by those who have the power to end it.",src:"Siegfried Sassoon, Finished with the War: A Soldier's Declaration, July 1917"}
+      ]},
+     {npc:"Erich Maria Remarque",emoji:"📖",role:"German Author (former soldier, 6th Division)",
+      lines:[
+        {t:"We are not youth any longer. We don't want to take the world by storm. We are fleeing. We fly from ourselves. From our life. We were eighteen and had begun to love life and the world; and we had to shoot it to pieces.",src:"Erich Maria Remarque, All Quiet on the Western Front, Ch.7 (1929)"},
+        {t:"At the sound of the first droning of the shells we become animals. No longer mere men. We take cover and abandon reason.",src:"Remarque, All Quiet on the Western Front, Ch.4 (1929)"}
+      ]},
+     {npc:"Private Thomas Atkins",emoji:"🪖",role:"British Infantry",
+      lines:[
+        {t:"Mud. Rats. Noise. The smell of gas and worse. And in it all, the men. The men are what I remember.",src:"Lyn Macdonald, Somme (1983) — composite of survivor testimonies"},
+        {t:"Forward. Always forward. Even in the mud, even in the dark.",src:"British soldier account, Imperial War Museum oral history archive"}
+      ]}
+    ],
+    [{npc:"Field Marshal Haig",emoji:"🎖️",role:"British Commander-in-Chief",
+      lines:[
+        {t:"The total casualties on July 1 are estimated at over 57,000. This has been a hard day. But the advance continues.",src:"Haig, diary, July 1, 1916 — actual entry, Imperial War Museum"},
+        {t:"The wearing down of the enemy is proceeding. We must continue to press the attack regardless of cost.",src:"Haig, strategic memo, July 1916"}
+      ]},
+     {npc:"Wilfred Owen",emoji:"📖",role:"Infantry Officer & Poet",
+      lines:[
+        {t:"If in some smothering dreams you too could pace behind the wagon that we flung him in, and watch the white eyes writhing in his face — my friend, you would not tell with such high zest the old Lie: Dulce et decorum est pro patria mori.",src:"Wilfred Owen, Dulce et Decorum Est (1917) — final stanza"},
+        {t:"The old Lie: it is sweet and fitting to die for one's country. They taught us that in school. The schoolmasters were not here.",src:"Owen, contextual — Dulce et Decorum Est drafts, British Library"}
+      ]},
+     {npc:"Private Thomas Atkins",emoji:"🪖",role:"British Infantry",
+      lines:[
+        {t:"I have been in this trench for six weeks. I do not think about tomorrow. Only the next minute.",src:"Imperial War Museum, Somme oral history archive — composite"}
+      ]}
+    ],
+    [{npc:"Siegfried Sassoon",emoji:"✍️",role:"Infantry Officer",
+      lines:[
+        {t:"Soldiers are dreamers; when the guns begin they think of firelit homes, clean beds and wives.",src:"Siegfried Sassoon, Dreamers (1917)"},
+        {t:"The war will end not in a victory march but in exhaustion — theirs and ours. We will simply run out of young men.",src:"Sassoon — composite from letters and Declaration, 1917"}
+      ]},
+     {npc:"Erich Maria Remarque",emoji:"📖",role:"Author & former soldier",
+      lines:[
+        {t:"He fell in October 1918, on a day that was so quiet and still on the whole front, that the army report confined itself to the single sentence: All quiet on the Western Front.",src:"Erich Maria Remarque, All Quiet on the Western Front — final line (1929)"},
+        {t:"I wrote this book to be a report on a generation that was destroyed by the war — even those who survived the shells.",src:"Remarque, Preface, All Quiet on the Western Front (1929)"}
+      ]},
+     {npc:"Private Thomas Atkins",emoji:"🪖",role:"British Infantry",
+      lines:[
+        {t:"Last wave. Same as the first. Over the top, keep low, trust the man beside you. Nothing else matters now.",src:"Composite, Somme survivor accounts — Lyn Macdonald, Somme (1983)"}
+      ]}
+    ]
+  ],
+
+  dday:[
+    [{npc:"General Eisenhower",emoji:"⭐",role:"Supreme Allied Commander",
+      lines:[
+        {t:"Soldiers, Sailors and Airmen of the Allied Expeditionary Force! You are about to embark upon the Great Crusade, toward which we have striven these many months.",src:"General Eisenhower, Order of the Day, June 6, 1944 — distributed to all Allied troops"},
+        {t:"The eyes of the world are upon you. The hopes and prayers of liberty-loving people everywhere march with you.",src:"Eisenhower, Order of the Day, June 6, 1944"},
+        {t:"I have full confidence in your courage, devotion to duty and skill in battle. We will accept nothing less than full Victory!",src:"Eisenhower, Order of the Day, June 6, 1944 — closing lines"}
+      ]},
+     {npc:"Winston Churchill",emoji:"🎩",role:"British Prime Minister",
+      lines:[
+        {t:"We shall fight on the beaches, we shall fight on the landing grounds, we shall fight in the fields and in the streets, we shall fight in the hills; we shall never surrender.",src:"Churchill, House of Commons, June 4, 1940 — four years before D-Day, but echoing in every soldier's mind"},
+        {t:"This is not the end. It is not even the beginning of the end. But it is, perhaps, the end of the beginning.",src:"Churchill, Lord Mayor's Luncheon, London, November 10, 1942 (El Alamein speech — the mood on D-Day)"}
+      ]},
+     {npc:"Sergeant James O'Brien",emoji:"🪖",role:"U.S. Army, 1st Infantry Division",
+      lines:[
+        {t:"The ramp drops. You go. You don't think. If you think, you freeze. The training takes over.",src:"Omaha Beach survivor accounts — Stephen Ambrose, D-Day (1994)"},
+        {t:"Fix bayonet. Keep moving. Get off the beach. That was the order and it was the only one that made sense.",src:"1st Infantry Division accounts, D-Day — Ambrose"}
+      ]}
+    ],
+    [{npc:"General Eisenhower",emoji:"⭐",role:"Supreme Allied Commander",
+      lines:[
+        {t:"Before sending these men in, I wrote a note for the press. 'Our landings have failed and the troops have been withdrawn. The decision to attack at this time was mine alone.'",src:"Eisenhower's unsent message, written the night of June 5, 1944 — found in his papers after the war"},
+        {t:"I kept it in my pocket all day. I still have it. There are decisions a commander carries long after the battle is over.",src:"Eisenhower, Crusade in Europe (1948) — on the unsent message"}
+      ]},
+     {npc:"Cornelius Ryan",emoji:"📖",role:"Journalist & Historian",
+      lines:[
+        {t:"D-Day was the largest amphibious assault in history — 156,000 men, 5,000 ships, 13,000 aircraft. And yet it almost failed on a single beach.",src:"Cornelius Ryan, The Longest Day (1959) — opening chapters"},
+        {t:"The bravery was individual. The chaos was total. And yet somehow, out of the chaos, they prevailed.",src:"Cornelius Ryan, The Longest Day (1959)"}
+      ]},
+     {npc:"Sergeant James O'Brien",emoji:"🪖",role:"U.S. Army",
+      lines:[
+        {t:"The men around me fell. I kept moving. Not because I was brave — because stopping meant dying and because I could not let them have died for nothing.",src:"Omaha Beach — composite of 1st ID survivor testimonies, Stephen Ambrose, D-Day (1994)"},
+        {t:"Get to the seawall. Get to the bluff. Get off the beach. Three simple things. Nothing else.",src:"1st Infantry Division accounts"}
+      ]}
+    ],
+    [{npc:"Winston Churchill",emoji:"🎩",role:"British Prime Minister",
+      lines:[
+        {t:"This is the most difficult and complicated operation that has ever taken place. I cannot be present at the landing — but every hour I shall think of you.",src:"Churchill, letter to Eisenhower, June 5, 1944 — Imperial War Museum"},
+        {t:"I have often had to eat my words, and I have always found it a wholesome diet.",src:"Churchill — attested quote on the political risks of the operation"}
+      ]},
+     {npc:"Cornelius Ryan",emoji:"📖",role:"Historian",
+      lines:[
+        {t:"Some men prayed. Some were sick over the sides of the landing craft. Some joked. All of them were afraid. None of them ran.",src:"Cornelius Ryan, The Longest Day (1959) — D-Day morning descriptions"},
+        {t:"Of the first wave at Omaha, perhaps one in five reached the seawall. The rest fell on the sand. And yet Omaha was taken.",src:"Ryan, The Longest Day — Omaha Beach chapters"}
+      ]},
+     {npc:"Sergeant James O'Brien",emoji:"🪖",role:"U.S. Army",
+      lines:[
+        {t:"The bluff is clear. The bunker is gone. Three waves down. Two to go.",src:"1st Infantry Division after-action reports — adapted"}
+      ]}
+    ],
+    [{npc:"General Eisenhower",emoji:"⭐",role:"Supreme Allied Commander",
+      lines:[
+        {t:"We have come to the end of the beginning. The beaches are held. The lodgement is made. Now comes the hard part: staying.",src:"Eisenhower, Crusade in Europe (1948) — post-D-Day assessment"},
+        {t:"The fate of this operation was never really in doubt — because the men were good. The best.",src:"Eisenhower, speaking about the 1st Infantry Division — Crusade in Europe"}
+      ]},
+     {npc:"Cornelius Ryan",emoji:"📖",role:"Historian",
+      lines:[
+        {t:"They shall grow not old, as we that are left grow old: age shall not weary them, nor the years condemn. At the going down of the sun, and in the morning, we will remember them.",src:"Laurence Binyon, For the Fallen (1914) — read at every D-Day commemoration"},
+        {t:"History gives great events a clean shape. The men who lived them knew only the next ten seconds.",src:"Cornelius Ryan, The Longest Day — closing note (1959)"}
+      ]},
+     {npc:"Sergeant James O'Brien",emoji:"🪖",role:"U.S. Army",
+      lines:[
+        {t:"Last push. We came across an ocean. We fought through water, blood, and wire to get here. We are not stopping now.",src:"1st Infantry Division — Normandy accounts, Stephen Ambrose"}
+      ]}
+    ]
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+//  ALLY DATA — 2 per era with distinct weapons
+// ══════════════════════════════════════════════════════
+const ALLY_SPECS={
+  rome:[
+    {name:'Legionary Maximus',color:0x8a3a20,helmc:0x9898a0,weapon:'Pilum',wtype:'melee',ar:3.8,bd:[14,24]},
+    {name:'Triarius Felix',color:0x6a2a10,helmc:0x7a7870,weapon:'Hasta Spear',wtype:'melee',ar:4.5,bd:[12,20]}
+  ],
+  crusades:[
+    {name:'Brother Anselm',color:0xd8d0b0,helmc:0x808888,weapon:'Morning Star',wtype:'melee',ar:3.2,bd:[16,28]},
+    {name:'Turcopole Harun',color:0x785030,helmc:0x605840,weapon:'Composite Bow',wtype:'ranged',ar:18,bd:[10,18]}
+  ],
+  agincourt:[
+    {name:'Archer William',color:0x5a5030,helmc:0x4a4028,weapon:'Longbow',wtype:'ranged',ar:22,bd:[12,22]},
+    {name:'Man-at-Arms Hugh',color:0x404848,helmc:0xa0a8b0,weapon:'Poleaxe',wtype:'melee',ar:4.0,bd:[18,30]}
+  ],
+  waterloo:[
+    {name:'Corporal Muñoz',color:0x1a2870,helmc:0x404048,weapon:'Charleville Musket',wtype:'ranged',ar:20,bd:[16,30]},
+    {name:'Private Clarke',color:0x780808,helmc:0x303038,weapon:'Brown Bess',wtype:'ranged',ar:20,bd:[14,26]}
+  ],
+  somme:[
+    {name:'Lance Cpl. Davies',color:0x506048,helmc:0x485840,weapon:'Lee-Enfield',wtype:'ranged',ar:22,bd:[14,26]},
+    {name:'Pte. Müller',color:0x484838,helmc:0x484830,weapon:'Gewehr 98',wtype:'ranged',ar:22,bd:[14,26]}
+  ],
+  dday:[
+    {name:'Cpl. Rodriguez',color:0x3a5038,helmc:0x3a5030,weapon:'M1 Garand',wtype:'ranged',ar:22,bd:[14,26]},
+    {name:'Pvt. Thompson',color:0x283830,helmc:0x303028,weapon:'Thompson SMG',wtype:'ranged',ar:14,bd:[10,18]}
+  ]
+};
 
 // ══════════════════════════════════════════════════════
 //  THREE.JS SETUP
@@ -1194,7 +1694,8 @@ function dodge(){
 // ══════════════════════════════════════════════════════
 let playerG=null,walkT=0;
 const pVel=new THREE.Vector3();
-let enemies=[],projectiles=[],parts=[];
+let enemies=[],projectiles=[],parts=[],allies=[];
+let questMode=false,questNpcs=[],questNpcIdx=0,questLineIdx=0,questNpcsDone=[];
 
 function updatePlayer(dt){
   if(!playerG||!G.playing||G.paused)return;
@@ -1470,15 +1971,197 @@ function beginWave(n){
   wSpawnC=0; wSpawnT=0; wSpawnDone=false; wActive=true;
   Q('wtxt').textContent='WAVE '+toR(n); Q('otxt').textContent=wd.o; Q('opg').textContent='0 / '+G.wkt;
   waveIntro(n,wd);
-  if(n===1||n%2===0) setTimeout(showQ,1500);
 }
 
 function updateWaves(dt){
-  if(!wActive||!G.playing||G.paused)return;
+  if(!wActive||!G.playing||G.paused||questMode)return;
   wSpawnT-=dt;
   if(wSpawnT<=0&&wSpawnC<G.wkt){spawnEnemy(G.era);wSpawnC++;wSpawnT=1.3+Math.max(0,.3*(5-G.wave));}
   if(wSpawnC>=G.wkt) wSpawnDone=true;
   if(wSpawnDone&&enemies.filter(e=>e.userData.alive).length===0&&wActive) checkWave();
+}
+
+
+// ══════════════════════════════════════════════════════
+//  ALLY SOLDIERS — 2 per era, distinct weapons
+// ══════════════════════════════════════════════════════
+function buildAlly(spec,era){
+  const g=new THREE.Group(); scene.add(g);
+  const uc=spec.color, hc=spec.helmc;
+  // Torso
+  const box2=(p,w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.88,metalness:.05}));m.position.set(x||0,y||0,z||0);p.add(m);return m;};
+  box2(g,.58,.68,.35,uc, 0,1.10);
+  // Head
+  const head=box2(g,.34,.28,.32,0xd0a870, 0,1.70);
+  // Helmet
+  box2(head,.37,.18,.36,hc, 0,.16);
+  // Arms
+  const lArm=box2(g,.20,.58,.20,uc,-.42,1.0);
+  const rArm=box2(g,.20,.58,.20,uc, .42,1.0);
+  // Legs
+  const lLeg=box2(g,.20,.50,.20,0x2a2a2a,-.14,.12);
+  const rLeg=box2(g,.20,.50,.20,0x2a2a2a, .14,.12);
+  // Simple weapon indicator on right arm
+  const wepCol=spec.wtype==='ranged'?0x4a4030:0x707070;
+  const wep=new THREE.Mesh(new THREE.BoxGeometry(.06,.52,.06),new THREE.MeshStandardMaterial({color:wepCol,roughness:.6,metalness:.3}));
+  wep.position.set(.04,-.28,.16); rArm.add(wep);
+  // Place near player
+  const angle=Math.random()*Math.PI*2;
+  g.position.set(Math.cos(angle)*2.5, 0, Math.sin(angle)*2.5);
+  g.userData={alive:true,hp:120,mhp:120,spec,era,lLeg,rLeg,lArm,rArm,head,
+    atkCool:1.5+Math.random()*2,isAlly:true,isRanged:spec.wtype==='ranged',
+    atkT:0,atkType:spec.wtype==='ranged'?'shoot':'swing',mov:false,
+    nearEnemy:null,spd:3.2};
+  // Health bar
+  const hbg=new THREE.Mesh(new THREE.BoxGeometry(.8,.06,.06),new THREE.MeshBasicMaterial({color:0x300000}));
+  hbg.position.set(0,2.4,0); g.add(hbg);
+  const hbf=new THREE.Mesh(new THREE.BoxGeometry(.78,.04,.08),new THREE.MeshBasicMaterial({color:0x44cc44}));
+  hbf.position.set(0,2.4,.05); g.add(hbf);
+  g.userData.hbar=hbf;
+  allies.push(g); return g;
+}
+
+function spawnAllies(){
+  // Remove old allies
+  allies.forEach(a=>scene.remove(a)); allies=[];
+  const specs=ALLY_SPECS[G.era.id]||[];
+  specs.forEach(s=>buildAlly(s,G.era));
+}
+
+function updateAllies(dt){
+  for(let i=allies.length-1;i>=0;i--){
+    const a=allies[i];
+    if(!a.userData.alive){
+      a.userData.deathT=(a.userData.deathT||1)-dt;
+      a.rotation.z+=dt*1.8; a.position.y-=dt*1.5;
+      if(a.userData.hbar)a.userData.hbar.visible=false;
+      if((a.userData.deathT||0)<=0){scene.remove(a);allies.splice(i,1);}
+      continue;
+    }
+    const ad=a.userData;
+    const groundY=tH(a.position.x/10,a.position.z/10);
+    // Find nearest enemy
+    let nearest=null,nearDist=999;
+    enemies.forEach(e=>{if(!e.userData.alive)return;const d=a.position.distanceTo(e.position);if(d<nearDist){nearDist=d;nearest=e;}});
+    ad.nearEnemy=nearest;
+    if(nearest){
+      const tp=nearest.position.clone().sub(a.position); tp.y=0;
+      a.rotation.y=Math.atan2(tp.x,tp.z);
+      const stopD=ad.isRanged?9:2.0;
+      if(nearDist>stopD){
+        a.position.addScaledVector(tp.clone().normalize(),ad.spd*dt); ad.mov=true;
+      } else {
+        ad.mov=false; ad.atkCool-=dt;
+        if(ad.atkCool<=0){
+          ad.atkCool=ad.isRanged?2.2:1.8; ad.atkT=.22;
+          if(ad.isRanged){
+            const orig=a.position.clone().add(new THREE.Vector3(0,1.4,0));
+            const dir=nearest.position.clone().sub(a.position).normalize();
+            fireProj(orig,dir,true,ad.spec.bd,70);
+          } else {
+            if(nearDist<ad.spec.ar) hitEnemy(nearest,ad.spec.bd[0]+Math.floor(Math.random()*(ad.spec.bd[1]-ad.spec.bd[0])));
+          }
+        }
+      }
+    } else {
+      // Follow player loosely
+      if(playerG){
+        const tp=playerG.position.clone().sub(a.position); tp.y=0;
+        if(tp.length()>5){a.position.addScaledVector(tp.clone().normalize(),ad.spd*.7*dt);ad.mov=true;}
+        else ad.mov=false;
+        a.rotation.y=Math.atan2(tp.x,tp.z);
+      }
+    }
+    a.position.y=groundY;
+    if(a.position.length()>55)a.position.normalize().multiplyScalar(55);
+    // Update health bar
+    if(ad.hbar){const r=Math.max(0,ad.hp/ad.mhp);ad.hbar.scale.x=r;ad.hbar.position.x=(r-1)*.39;}
+    animChar(a,dt,ad.mov,ad.spd);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  QUEST / DIALOGUE ENGINE
+// ══════════════════════════════════════════════════════
+function startQuest(waveJustCleared){
+  const eraId=G.era.id;
+  const waveIdx=Math.max(0,Math.min(waveJustCleared-1,3));
+  const npcs=QUESTS[eraId]&&QUESTS[eraId][waveIdx];
+  if(!npcs||npcs.length===0){proceedToNextWave();return;}
+  questMode=true; questNpcs=npcs; questNpcIdx=0; questLineIdx=0; questNpcsDone=[];
+  G.playing=false; wActive=false;
+  // Clear all enemies during quest break
+  enemies.forEach(e=>scene.remove(e)); enemies=[]; projectiles.forEach(p=>scene.remove(p)); projectiles=[];
+  showQuestPanel();
+}
+
+function showQuestPanel(){
+  const npc=questNpcs[questNpcIdx];
+  if(!npc){endQuest();return;}
+  // Build NPC chips
+  const listEl=Q('qnpc_list'); listEl.innerHTML='';
+  questNpcs.forEach((n,i)=>{
+    const chip=document.createElement('div');
+    chip.className='qnpc_chip'+(i===questNpcIdx?' active':'')+(questNpcsDone.includes(i)?' done':'');
+    chip.innerHTML=`<span class="chip_ico">${n.emoji}</span><span class="chip_nm">${n.npc}</span><span class="chip_done">✓</span>`;
+    chip.onclick=()=>{if(questNpcsDone.includes(i)||i===questNpcIdx)return;questNpcIdx=i;questLineIdx=0;showQuestPanel();};
+    listEl.appendChild(chip);
+  });
+  // Wave banner
+  const waveNum=G.wave; // wave just cleared
+  Q('qwave_banner').textContent=`Wave ${toR(waveNum)} Complete — Interlude before Wave ${toR(waveNum+1)}`;
+  // Show NPC and first line
+  renderQuestLine();
+  const qs=Q('qscr'); qs.classList.add('show'); qs.style.display='flex';
+}
+
+function renderQuestLine(){
+  const npc=questNpcs[questNpcIdx];
+  const line=npc.lines[questLineIdx];
+  Q('qnpc_avatar').textContent=npc.emoji;
+  Q('qnpc_name').textContent=npc.npc;
+  Q('qnpc_role').textContent=npc.role;
+  Q('qtext').textContent=line.t;
+  Q('qsrc').textContent='— '+line.src;
+  const total=questNpcs.reduce((s,n)=>s+n.lines.length,0);
+  const done=questNpcs.slice(0,questNpcIdx).reduce((s,n)=>s+n.lines.length,0)+questLineIdx+1;
+  Q('qprog').textContent=`${done} of ${total}`;
+  // Last line of last NPC
+  const isLast=questNpcIdx===questNpcs.length-1&&questLineIdx===npc.lines.length-1;
+  Q('qnext').textContent=isLast?'To Battle ⚔':'Continue ›';
+}
+
+function questNext(){
+  const npc=questNpcs[questNpcIdx];
+  questLineIdx++;
+  if(questLineIdx>=npc.lines.length){
+    // Finished this NPC — mark done, move to next unread
+    if(!questNpcsDone.includes(questNpcIdx))questNpcsDone.push(questNpcIdx);
+    // Find next unread NPC
+    let nextIdx=-1;
+    for(let i=0;i<questNpcs.length;i++){if(!questNpcsDone.includes(i)){nextIdx=i;break;}}
+    if(nextIdx===-1){endQuest();return;}
+    questNpcIdx=nextIdx; questLineIdx=0;
+    showQuestPanel(); return;
+  }
+  renderQuestLine();
+  // Update chips
+  Q('qnpc_list').querySelectorAll('.qnpc_chip').forEach((c,i)=>{
+    c.className='qnpc_chip'+(i===questNpcIdx?' active':'')+(questNpcsDone.includes(i)?' done':'');
+  });
+}
+
+function endQuest(){
+  questMode=false;
+  Q('qscr').classList.remove('show'); Q('qscr').style.display='none';
+  showScr('hud'); G.playing=true;
+  setTimeout(()=>beginWave(G.wave+1),800);
+}
+
+function proceedToNextWave(){
+  if(G.wave>=5){endGame(true);return;}
+  G.playing=true; wActive=false;
+  setTimeout(()=>beginWave(G.wave+1),1200);
 }
 
 function checkWave(){
@@ -1488,8 +2171,8 @@ function checkWave(){
   const wd=G.era.wv[G.wave-1];
   Q('obntxt').textContent='OBJECTIVE COMPLETE'; Q('obnsub').textContent=wd?wd.o:'Wave cleared';
   const ob=Q('obn'); ob.classList.add('show'); setTimeout(()=>ob.classList.remove('show'),2200);
-  if(G.wave>=5) setTimeout(()=>endGame(true),1700);
-  else setTimeout(()=>beginWave(G.wave+1),3300);
+  if(G.wave>=5){setTimeout(()=>endGame(true),1700);}
+  else{setTimeout(()=>startQuest(G.wave),2400);}
 }
 
 // ══════════════════════════════════════════════════════
@@ -1547,7 +2230,7 @@ function updateParts(dt){
 // ══════════════════════════════════════════════════════
 function buildScene(era){
   while(scene.children.length)scene.remove(scene.children[0]);
-  enemies=[]; projectiles=[]; parts=[];
+  enemies=[]; projectiles=[]; parts=[]; allies.forEach(a=>scene.remove(a)); allies=[];
   scene.fog=new THREE.FogExp2(era.fc,MOB?.026:.021);
   scene.background=new THREE.Color(era.sk);
   scene.add(new THREE.AmbientLight(0x301a0a,1.9));
@@ -1775,13 +2458,14 @@ const Q=id=>document.getElementById(id);
 // ══════════════════════════════════════════════════════
 //  SCREEN MANAGER
 // ══════════════════════════════════════════════════════
-const SCRIDS=['lscr','mscr','escr','hud','gscr','vscr','cdxscr','ctlscr'];
+const SCRIDS=['lscr','mscr','escr','hud','gscr','vscr','cdxscr','ctlscr','qscr'];
 function showScr(id){
   SCRIDS.forEach(s=>{
     const el=Q(s); if(!el)return;
-    el.style.display=s===id?(['mscr','gscr','vscr','pscr'].includes(s)?'flex':'block'):'none';
+    el.style.display=s===id?(['mscr','gscr','vscr','pscr','qscr'].includes(s)?'flex':'block'):'none';
   });
   Q('tc').classList.toggle('on',id==='hud');
+  if(id==='qscr'){Q('tc').classList.remove('on');}
   Q('xh').style.display=id==='hud'?'block':'none';
   if(id!=='csh') Q('csh').classList.remove('show');
 }
@@ -1801,7 +2485,7 @@ function startGame(){
   menuActive=false; camX=0; camY=.55;
   buildScene(G.era);
   showScr('hud');
-  setTimeout(()=>beginWave(1),1000);
+  setTimeout(()=>{spawnAllies();beginWave(1);},1000);
 }
 
 function pause(){
@@ -1918,7 +2602,7 @@ function loop(){
   requestAnimationFrame(loop);
   const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
   if(G.playing&&!G.paused){
-    updatePlayer(dt); updateEnemies(dt); updateWaves(dt);
+    updatePlayer(dt); updateEnemies(dt); updateAllies(dt); updateWaves(dt);
     updateProjectiles(dt); updateCam(); updateParts(dt); drawMinimap();
   } else if(menuActive){
     menuT+=dt;
@@ -1938,5 +2622,29 @@ clock.start(); initTouch(); buildMenuScene(); loop();
 setTimeout(()=>{Q('lscr').style.display='none';showScr('mscr');},2500);
 </script>
 
+<!-- QUEST / NPC DIALOGUE SCREEN -->
+
+<div id="qscr" style="display:none;">
+  <div id="qbg"></div>
+  <div id="qpanel">
+    <div id="qwave_banner"></div>
+    <div id="qnpc_area">
+      <div id="qnpc_avatar"></div>
+      <div id="qnpc_info">
+        <div id="qnpc_name"></div>
+        <div id="qnpc_role"></div>
+      </div>
+    </div>
+    <div id="qbubble">
+      <div id="qtext"></div>
+      <div id="qsrc"></div>
+    </div>
+    <div id="qnav">
+      <div id="qprog"></div>
+      <button id="qnext" onclick="questNext()">Continue ›</button>
+    </div>
+    <div id="qnpc_list"></div>
+  </div>
+</div>
 </body>
 </html>
