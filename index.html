@@ -1646,7 +1646,13 @@ let atkCool=0,dodgeT=0,dodgeCool=0,reloadT=0,reloading=false,shakeI=0;
 const dodgeDir=new THREE.Vector3();
 const mouse={locked:false};
 
-document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE'&&questMode){interactWithNearestNpc();};if(e.code==='Escape'&&G.playing)pause();if(e.code==='Space')e.preventDefault();});
+document.addEventListener('keydown',e=>{
+  if(e.repeat)return; // prevent key repeat spam
+  keys[e.code]=true;
+  if(e.code==='KeyE'&&questMode){e.preventDefault();interactWithNearestNpc();}
+  if(e.code==='Escape'){if(questMode){}else if(G.playing)pause();}
+  if(e.code==='Space')e.preventDefault();
+});
 document.addEventListener('keyup',e=>{keys[e.code]=false;});
 document.getElementById('cv').addEventListener('click',()=>{if(G.playing&&!G.paused&&!MOB)renderer.domElement.requestPointerLock();});
 document.addEventListener('pointerlockchange',()=>{mouse.locked=document.pointerLockElement===renderer.domElement;});
@@ -1684,7 +1690,7 @@ function moveJoy(cx,cy){
 }
 
 function dodge(){
-  if(dodgeCool>0||G.stam<30||!G.playing||G.paused||!playerG)return;
+  if(dodgeCool>0||G.stam<30||!G.playing||G.paused||!playerG||questMode)return;
   dodgeCool=1.6; dodgeT=.28; G.stam-=30;
   beep(600,.05,.12);
   const fwd=new THREE.Vector3(-Math.sin(camX),0,-Math.cos(camX));
@@ -1798,7 +1804,7 @@ function animChar(g,dt,mov,spd){
 //  ATTACK / PROJECTILES
 // ══════════════════════════════════════════════════════
 function attack(){
-  if(!playerG||atkCool>0||reloading)return;
+  if(!playerG||atkCool>0||reloading||questMode)return;
   const era=G.era; atkCool=era.ac; playerG.userData.atkT=.28;
   if(!era.rng){
     let hit=false;
@@ -1857,6 +1863,7 @@ function fireProj(orig,dir,isP,bd,mr){
 }
 
 function updateProjectiles(dt){
+  if(questMode)return;
   for(let i=projectiles.length-1;i>=0;i--){
     const p=projectiles[i];
     p.position.addScaledVector(p.userData.vel,dt);
@@ -1912,6 +1919,7 @@ function beep(freq,dur,vol=0.18){
   o.start();o.stop(ac.currentTime+dur);}catch(e){}
 }
 function hurtP(dmg){
+  if(questMode)return;
   G.hp=Math.max(0,G.hp-dmg); refreshHUD();
   beep(180,.18,.25);
   const fl=Q('dmgfl'); fl.classList.add('hit'); setTimeout(()=>fl.classList.remove('hit'),130);
@@ -1926,6 +1934,7 @@ function refreshHUD(){
 //  ENEMY AI
 // ══════════════════════════════════════════════════════
 function updateEnemies(dt){
+  if(questMode)return;
   for(let i=enemies.length-1;i>=0;i--){
     const e=enemies[i];
     if(!e.userData.alive){
@@ -2769,7 +2778,7 @@ function advanceNpcDialog(){
 
 function closeNpcDialog(){
   qActiveNpc=null;
-  Q('qdialog').classList.remove('show');
+  const dlg=Q('qdialog'); if(dlg)dlg.classList.remove('show');
 }
 
 // ── MAIN QUEST LAUNCH ─────────────────────────────────
@@ -2778,7 +2787,7 @@ function startQuest(waveJustCleared){
   const waveIdx=Math.max(0,Math.min(waveJustCleared-1,3));
   const npcs=QUESTS[eraId]&&QUESTS[eraId][waveIdx];
   if(!npcs||npcs.length===0){proceedToNextWave();return;}
-  questMode=true; G.playing=true; wActive=false; qAllTalked=false;
+  questMode=true; menuActive=false; G.playing=true; G.paused=false; wActive=false; qAllTalked=false;
   // Clear enemies/projectiles
   enemies.forEach(e=>scene.remove(e)); enemies=[];
   projectiles.forEach(p=>scene.remove(p)); projectiles=[];
@@ -2795,6 +2804,8 @@ function startQuest(waveJustCleared){
   placeQuestNpcsForWave(G.era,waveIdx);
   // Update HUD banners
   showScr('hud');
+  Q('tc').classList.add('on'); // player still needs touch controls to walk around town
+  Q('xh').style.display='none'; // no crosshair during quest
   const lbl=TOWN_LABELS[eraId]||{title:'ENCAMPMENT',sub:''};
   Q('qt_title').textContent=lbl.title; Q('qt_sub').textContent=lbl.sub;
   Q('qtown_label').style.display='block';
@@ -2806,27 +2817,33 @@ function startQuest(waveJustCleared){
   // Hide reload bar
   Q('rlwrap').classList.remove('on');
   // Update wave display
-  Q('wtxt').textContent='INTERLUDE'; Q('otxt').textContent='Speak with the historical figures'; Q('opg').textContent='';
+  Q('wtxt').textContent='INTERLUDE'; Q('otxt').textContent='Walk up to historical figures & press E / tap SPEAK'; Q('opg').textContent='';
+  // Change attack button to "SPEAK" during quest mode
+  Q('asym').textContent='💬'; Q('albl').textContent='SPEAK';
 }
 
 function endQuest(){
-  questMode=false;
+  questMode=false; qAllTalked=false;
   closeNpcDialog();
   Q('qtown_label').style.display='none';
   Q('qinteract').style.display='none';
   Q('qsoldat_glow').style.display='none';
+  Q('qdialog').classList.remove('show');
   qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
   buildScene(G.era);
-  playerG=buildPlayer(G.era,G.ch);
-  if(playerG){scene.add(playerG);playerG.position.set(0,.5,0);}
+  G.playing=true; G.paused=false;
+  reloading=false; atkCool=0;
+  Q('rlwrap').classList.remove('on');
+  Q('asym').textContent=G.era.rng?'🎯':'⚔'; Q('albl').textContent=G.era.rng?'FIRE':'ATTACK';
   spawnAllies();
   showScr('hud');
-  setTimeout(()=>beginWave(G.wave+1),1200);
+  Q('wtxt').textContent='WAVE '+toR(G.wave+1);
+  setTimeout(()=>beginWave(G.wave+1),800);
 }
 
 function proceedToNextWave(){
   if(G.wave>=5){endGame(true);return;}
-  G.playing=true; wActive=false;
+  G.playing=true; G.paused=false; wActive=false;
   setTimeout(()=>beginWave(G.wave+1),1200);
 }
 
@@ -2899,6 +2916,7 @@ function updateParts(dt){
 function buildScene(era){
   while(scene.children.length)scene.remove(scene.children[0]);
   enemies=[]; projectiles=[]; parts=[]; allies.forEach(a=>scene.remove(a)); allies=[];
+  qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
   scene.fog=new THREE.FogExp2(era.fc,MOB?.026:.021);
   scene.background=new THREE.Color(era.sk);
   scene.add(new THREE.AmbientLight(0x301a0a,1.9));
@@ -3057,6 +3075,8 @@ let menuActive=true,menuT=0;
 function buildMenuScene(){
   while(scene.children.length)scene.remove(scene.children[0]);
   parts=[]; projectiles=[]; enemies=[];
+  allies=[]; qTownNpcs=[]; playerG=null;
+  questMode=false; wActive=false;
   scene.fog=new THREE.FogExp2(0x0d0a06,.037);
   scene.background=new THREE.Color(0x050402);
   scene.add(new THREE.AmbientLight(0x301a0a,1.4));
@@ -3132,16 +3152,25 @@ function showScr(id){
     const el=Q(s); if(!el)return;
     el.style.display=s===id?(['mscr','gscr','vscr','pscr','qscr'].includes(s)?'flex':'block'):'none';
   });
-  Q('tc').classList.toggle('on',id==='hud');
-  if(id==='qscr'){Q('tc').classList.remove('on');}
-  Q('xh').style.display=id==='hud'?'block':'none';
+  Q('tc').classList.toggle('on',id==='hud'||questMode);
+  Q('xh').style.display=(id==='hud'&&!questMode)?'block':'none';
   if(id!=='csh') Q('csh').classList.remove('show');
+  // Always hide dialog box when switching screens
+  if(id!=='hud'){const dlg=Q('qdialog');if(dlg)dlg.classList.remove('show');}
 }
 
 // ══════════════════════════════════════════════════════
 //  GAME FLOW
 // ══════════════════════════════════════════════════════
 function startGame(){
+  // Clean up any lingering quest state
+  questMode=false; qAllTalked=false;
+  closeNpcDialog();
+  Q('qdialog').classList.remove('show');
+  Q('qtown_label').style.display='none';
+  Q('qinteract').style.display='none';
+  Q('qsoldat_glow').style.display='none';
+  qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
   G.hp=G.mhp=Math.round(80+(G.ch?G.ch.st.d/5:16));
   G.stam=100; G.kills=0; G.wave=1; G.wk=0;
   G.playing=true; G.paused=false;
@@ -3157,6 +3186,7 @@ function startGame(){
 }
 
 function pause(){
+  if(questMode)return;
   G.paused=!G.paused;
   Q('pscr').style.display=G.paused?'flex':'none';
   if(G.paused&&document.pointerLockElement)document.exitPointerLock();
@@ -3243,14 +3273,39 @@ on('cpnl-cls',()=>Q('csh').classList.remove('show'));
 on('bresume',()=>pause());
 on('bquit',()=>{
   G.playing=false; G.paused=false; menuActive=true;
+  questMode=false; qAllTalked=false;
+  closeNpcDialog();
+  Q('qdialog').classList.remove('show');
+  Q('qtown_label').style.display='none';
+  Q('qinteract').style.display='none';
+  Q('qsoldat_glow').style.display='none';
+  qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
   Q('pscr').style.display='none'; Q('rlwrap').classList.remove('on');
   if(document.pointerLockElement)document.exitPointerLock();
   buildMenuScene(); showScr('mscr');
 });
-on('bretry',()=>{Q('gscr').style.display='none';startGame();});
-on('bmgo',()=>{menuActive=true;buildMenuScene();showScr('mscr');});
-on('bmvc',()=>{menuActive=true;buildMenuScene();showScr('mscr');});
-on('bnext',()=>{G.eraIdx=(G.eraIdx+1)%ERAS.length;G.era=ERAS[G.eraIdx];Q('vscr').style.display='none';openChar(G.era,G.eraIdx);showScr('escr');});
+on('bretry',()=>{
+  Q('gscr').style.display='none';
+  questMode=false; qAllTalked=false;
+  qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
+  Q('qdialog').classList.remove('show');
+  startGame();
+});
+on('bmgo',()=>{
+  questMode=false; qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
+  Q('qdialog').classList.remove('show');
+  menuActive=true; G.playing=false; buildMenuScene(); showScr('mscr');
+});
+on('bmvc',()=>{
+  questMode=false; qTownNpcs.forEach(n=>scene.remove(n)); qTownNpcs=[];
+  Q('qdialog').classList.remove('show');
+  menuActive=true; G.playing=false; buildMenuScene(); showScr('mscr');
+});
+on('bnext',()=>{
+  G.eraIdx=(G.eraIdx+1)%ERAS.length; G.era=ERAS[G.eraIdx]; G.wave=1;
+  Q('vscr').style.display='none';
+  openChar(G.era,G.eraIdx); showScr('escr');
+});
 Q('cpnl').addEventListener('click',e=>e.stopPropagation());
 Q('cpnl').addEventListener('touchend',e=>e.stopPropagation(),{passive:false});
 Q('csh').addEventListener('touchend',e=>{if(e.target===Q('csh'))Q('csh').classList.remove('show');},{passive:false});
